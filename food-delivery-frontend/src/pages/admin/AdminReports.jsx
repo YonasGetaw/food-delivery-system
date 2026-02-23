@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api/admin';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -43,7 +44,11 @@ const AdminReports = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Revenue Reports</h1>
+      <div className="mb-4">
+        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+          Home
+        </Link>
+      </div>
       <div className="mb-6 flex flex-wrap gap-4">
         <input
           type="date"

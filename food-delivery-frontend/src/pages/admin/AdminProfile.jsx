@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { usersAPI } from '../../api/users';
@@ -89,9 +90,10 @@ const AdminProfile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl bg-gradient-to-br from-pink-50 to-white dark:from-gray-900 dark:to-gray-950 border border-pink-100 dark:border-gray-800 p-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Profile</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">Update your account details and image</p>
+      <div>
+        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+          Home
+        </Link>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api/admin';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -13,6 +14,7 @@ const AdminUsers = () => {
   const [headerClicked, setHeaderClicked] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     loadUsers();
   }, [page]);
 
@@ -42,17 +44,22 @@ const AdminUsers = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">User Management</h1>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="mb-4">
+        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+          Home
+        </Link>
+      </div>
+
+      <div className="bg-white rounded-none shadow-md overflow-hidden border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className={headerClicked ? 'bg-blue-600' : 'bg-gray-50'}>
+          <thead className={headerClicked ? 'bg-blue-100' : 'bg-blue-50'}>
             <tr>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>ID</th>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>Name</th>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>Phone</th>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>Role</th>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>Status</th>
-              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-medium uppercase cursor-pointer select-none ${headerClicked ? 'text-white' : 'text-gray-500'}`}>Actions</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>ID</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>Name</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>Phone</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>Role</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>Status</th>
+              <th onClick={() => setHeaderClicked(true)} className={`px-6 py-3 text-left text-xs font-semibold uppercase cursor-pointer select-none ${headerClicked ? 'text-blue-900' : 'text-blue-700'}`}>Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">

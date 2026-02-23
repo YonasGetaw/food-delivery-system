@@ -55,6 +55,7 @@ func SetupRoutes(
 			nRoutes := protected.Group("/notifications")
 			{
 				nRoutes.GET("", notificationsHandler.ListMyNotifications)
+				nRoutes.GET("/unread-count", notificationsHandler.GetMyUnreadCount)
 				nRoutes.POST("/:id/read", notificationsHandler.MarkNotificationRead)
 				nRoutes.POST("/read-all", notificationsHandler.MarkAllNotificationsRead)
 			}

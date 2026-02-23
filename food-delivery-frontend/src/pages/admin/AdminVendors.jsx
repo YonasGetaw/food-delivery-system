@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api/admin';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -25,6 +26,7 @@ const AdminVendors = () => {
   });
 
   useEffect(() => {
+    setLoading(true);
     loadVendors();
   }, [page]);
 
@@ -68,7 +70,9 @@ const AdminVendors = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Vendor Management</h1>
+        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+          Home
+        </Link>
         <Button variant="primary" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4 mr-2" />
           Create Vendor
@@ -96,14 +100,14 @@ const AdminVendors = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-none shadow-md overflow-hidden border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-blue-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 uppercase">Business</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 uppercase">Phone</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 uppercase">Revenue</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">

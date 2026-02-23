@@ -102,15 +102,15 @@ const AdminHome = () => {
         {recentOrders.length === 0 ? (
           <p className="text-gray-600 dark:text-gray-300">No recent orders</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-none">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead className="bg-gray-50 dark:bg-gray-800">
+              <thead className="bg-blue-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Order #</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Vendor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Order #</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Vendor</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Total</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Date</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">

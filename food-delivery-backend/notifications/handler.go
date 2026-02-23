@@ -47,6 +47,22 @@ func (h *Handler) ListMyNotifications(c *gin.Context) {
 	pkg.SendSuccess(c, http.StatusOK, "Notifications retrieved", items)
 }
 
+// GetMyUnreadCount returns the number of unread notifications for the authenticated user.
+func (h *Handler) GetMyUnreadCount(c *gin.Context) {
+	userID := c.GetUint("user_id")
+
+	var count int64
+	if err := h.db.Model(&database.Notification{}).
+		Where("user_id = ? AND is_read = ?", userID, false).
+		Count(&count).Error; err != nil {
+		h.logger.Error("Failed to count unread notifications", zap.Error(err))
+		pkg.SendError(c, http.StatusInternalServerError, "Failed to load notifications", nil)
+		return
+	}
+
+	pkg.SendSuccess(c, http.StatusOK, "Unread count retrieved", gin.H{"count": count})
+}
+
 // MarkNotificationRead marks a notification as read for the authenticated user.
 func (h *Handler) MarkNotificationRead(c *gin.Context) {
 	userID := c.GetUint("user_id")
