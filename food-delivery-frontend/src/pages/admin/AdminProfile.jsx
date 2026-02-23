@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { usersAPI } from '../../api/users';
 import { useAuth } from '../../contexts/AuthContext';
@@ -14,6 +14,7 @@ const AdminProfile = () => {
   const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ first_name: '', last_name: '', phone: '' });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     loadProfile();
@@ -57,7 +58,7 @@ const AdminProfile = () => {
       setProfile((prev) => ({ ...(prev || {}), profile_image_url: imageUrl }));
       updateUser({ profileImageUrl: imageUrl });
     } catch (err) {
-      toast.error(err?.error || 'Failed to upload image');
+      toast.error(err?.error || err?.message || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -102,20 +103,22 @@ const AdminProfile = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="inline-flex items-center">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleUpload(e.target.files?.[0])}
-                disabled={uploading}
-              />
-              <span className="inline-flex">
-                <Button variant="primary" disabled={uploading} loading={uploading}>
-                  Upload Image
-                </Button>
-              </span>
-            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleUpload(e.target.files?.[0])}
+              disabled={uploading}
+            />
+            <Button
+              variant="primary"
+              disabled={uploading}
+              loading={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Upload Image
+            </Button>
           </div>
         </div>
       </div>

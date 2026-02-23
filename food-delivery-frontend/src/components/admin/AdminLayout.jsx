@@ -4,7 +4,23 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../common/Button';
 import Input from '../common/Input';
 import toast from 'react-hot-toast';
-import { Shield, Users, Store, Bike, Package, BarChart2, Bell, Sun, Moon, ChevronDown, KeyRound, UserCircle, LogOut } from 'lucide-react';
+import {
+  Shield,
+  Users,
+  Store,
+  Bike,
+  ShoppingBag,
+  LineChart,
+  LayoutDashboard,
+  Bell,
+  Sun,
+  Moon,
+  ChevronDown,
+  KeyRound,
+  UserCircle,
+  LogOut,
+  Menu,
+} from 'lucide-react';
 import { getAssetUrl } from '../../utils/helpers';
 
 const AdminLayout = ({ children }) => {
@@ -14,6 +30,7 @@ const AdminLayout = ({ children }) => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: '',
     newPassword: '',
@@ -40,12 +57,12 @@ const AdminLayout = ({ children }) => {
   const avatarSrc = user?.profileImageUrl ? getAssetUrl(user.profileImageUrl) : '';
 
   const navItems = [
-    { to: '/admin', icon: Shield, label: 'Dashboard' },
+    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/vendors', icon: Store, label: 'Vendors' },
     { to: '/admin/riders', icon: Bike, label: 'Riders' },
-    { to: '/admin/orders', icon: Package, label: 'Orders' },
-    { to: '/admin/reports', icon: BarChart2, label: 'Reports' },
+    { to: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+    { to: '/admin/reports', icon: LineChart, label: 'Reports' },
     { to: '/admin/profile', icon: UserCircle, label: 'Profile' },
   ];
 
@@ -70,11 +87,13 @@ const AdminLayout = ({ children }) => {
 
   return (
     <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 flex">
-      <aside className="w-64 h-screen shrink-0 bg-white dark:bg-gray-900 shadow-md">
-        <div className="p-6">
+      <aside
+        className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-screen shrink-0 bg-white dark:bg-gray-900 shadow-md transition-[width] duration-200`}
+      >
+        <div className={`${sidebarCollapsed ? 'p-4' : 'p-6'}`}>
           <Link to="/admin" className="flex items-center text-xl font-bold text-[#db2777]">
-            <Shield className="w-6 h-6 mr-2" />
-            Admin Panel
+            <Shield className={`w-6 h-6 ${sidebarCollapsed ? '' : 'mr-2'}`} />
+            {!sidebarCollapsed && <span>Admin Panel</span>}
           </Link>
         </div>
         <nav className="mt-4">
@@ -82,17 +101,30 @@ const AdminLayout = ({ children }) => {
             <Link
               key={item.to}
               to={item.to}
-              className="flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-[#fce7f3] dark:hover:bg-gray-800 hover:text-[#db2777]"
+              title={sidebarCollapsed ? item.label : undefined}
+              className={`flex items-center text-gray-700 dark:text-gray-200 hover:bg-[#fce7f3] dark:hover:bg-gray-800 hover:text-[#db2777] ${
+                sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-6 py-3'
+              }`}
             >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.label}
+              <item.icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'mr-3'}`} />
+              {!sidebarCollapsed && item.label}
             </Link>
           ))}
         </nav>
       </aside>
       <main className="flex-1 h-screen overflow-y-auto">
         <header className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800">
-          <div className="px-6 py-4 flex items-center justify-end gap-2">
+          <div className="px-6 py-4 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+            </button>
+
+            <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => toast.success('No new notifications')}
@@ -168,6 +200,7 @@ const AdminLayout = ({ children }) => {
 				  </button>
                 </div>
               )}
+            </div>
             </div>
           </div>
         </header>
