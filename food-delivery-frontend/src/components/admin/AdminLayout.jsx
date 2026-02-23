@@ -273,6 +273,12 @@ const AdminLayout = ({ children }) => {
 
               {profileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-800 shadow-lg overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      {displayName || user?.email || 'Admin'}
+                    </div>
+                  </div>
+
                   <Link
                     to="/admin/profile"
                     onClick={() => setProfileMenuOpen(false)}
