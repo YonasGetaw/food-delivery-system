@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { notificationsAPI } from '../../api/notifications';
 import {
   Shield,
   Users,
@@ -24,10 +26,15 @@ import { getAssetUrl } from '../../utils/helpers';
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { messages } = useWebSocket();
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const notificationsRef = useRef(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -62,6 +69,53 @@ const AdminLayout = ({ children }) => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const normalizedNotifications = useMemo(() => {
+    return (notifications || []).map((n) => {
+      const ts = n?.timestamp ?? (n?.created_at ? Math.floor(new Date(n.created_at).getTime() / 1000) : null);
+      return {
+        id: n?.id ?? `${n?.type || 'notification'}-${ts || Date.now()}`,
+        title: n?.title || 'Notification',
+        message: n?.message || '',
+        timestamp: ts,
+        is_read: typeof n?.is_read === 'boolean' ? n.is_read : false,
+      };
+    });
+  }, [notifications]);
+
+  const fetchNotifications = async () => {
+    setNotificationsLoading(true);
+    try {
+      const res = await notificationsAPI.list(20);
+      const items = res?.data || res;
+      setNotifications(Array.isArray(items) ? items : []);
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to load notifications');
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const last = messages?.[messages.length - 1];
+    if (!last || !last.title || !last.message) return;
+
+    setNotifications((prev) => {
+      const next = [last, ...(prev || [])];
+      return next.slice(0, 50);
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    const onDocMouseDown = (e) => {
+      if (!notificationsOpen) return;
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [notificationsOpen]);
+
   return (
     <div className="h-screen overflow-hidden bg-pink-50 dark:bg-gray-950 flex flex-col">
       <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
@@ -82,14 +136,64 @@ const AdminLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => toast.success('No new notifications')}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Notifications"
-            >
-              <Bell className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
-            </button>
+            <div className="relative" ref={notificationsRef}>
+              <button
+                type="button"
+                onClick={async () => {
+                  setProfileMenuOpen(false);
+                  setNotificationsOpen((v) => !v);
+                  if (!notificationsOpen) {
+                    await fetchNotifications();
+                  }
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-800 shadow-lg overflow-hidden">
+                  <div className="px-4 py-3 border-b dark:border-gray-800">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</div>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto">
+                    {notificationsLoading ? (
+                      <div className="px-4 py-6 text-sm text-gray-600 dark:text-gray-300">Loading...</div>
+                    ) : normalizedNotifications.length === 0 ? (
+                      <div className="px-4 py-6 text-sm text-gray-600 dark:text-gray-300">No notifications</div>
+                    ) : (
+                      normalizedNotifications.map((n) => (
+                        <button
+                          key={n.id}
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              if (typeof n.id === 'number') {
+                                await notificationsAPI.markRead(n.id);
+                              }
+                            } finally {
+                              setNotificationsOpen(false);
+                              fetchNotifications();
+                            }
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        >
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{n.title}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{n.message}</div>
+                          {n.timestamp ? (
+                            <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                              {new Date(n.timestamp * 1000).toLocaleString()}
+                            </div>
+                          ) : null}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"

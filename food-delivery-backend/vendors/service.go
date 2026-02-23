@@ -3,7 +3,9 @@ package vendors
 import (
 	"context"
 	"errors"
+	"fmt"
 	"food-delivery-backend/database"
+	"food-delivery-backend/notifications"
 	"food-delivery-backend/redis"
 	"time"
 
@@ -12,13 +14,15 @@ import (
 
 type Service struct {
 	repo        *Repository
+	notifier    *notifications.Service
 	redisClient *redis.RedisClient
 	logger      *zap.Logger
 }
 
-func NewService(repo *Repository, redisClient *redis.RedisClient, logger *zap.Logger) *Service {
+func NewService(repo *Repository, notifier *notifications.Service, redisClient *redis.RedisClient, logger *zap.Logger) *Service {
 	return &Service{
 		repo:        repo,
+		notifier:    notifier,
 		redisClient: redisClient,
 		logger:      logger,
 	}
@@ -271,7 +275,21 @@ func (s *Service) AcceptOrder(vendorID uint, orderID uint) error {
 	}
 
 	now := time.Now()
-	return s.repo.UpdateOrderStatus(orderID, database.OrderStatusConfirmed, &now)
+	if err := s.repo.UpdateOrderStatus(orderID, database.OrderStatusConfirmed, &now); err != nil {
+		return err
+	}
+
+	// Reload and notify
+	if s.notifier != nil {
+		updated, err := s.repo.GetOrderByID(orderID)
+		if err == nil {
+			s.notifier.NotifyOrderUpdate(updated, database.OrderStatusConfirmed, "")
+			s.notifier.NotifyAdmin("Order Accepted",
+				fmt.Sprintf("Order #%s was accepted by the vendor", updated.OrderNumber))
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) RejectOrder(vendorID uint, orderID uint, reason string) error {

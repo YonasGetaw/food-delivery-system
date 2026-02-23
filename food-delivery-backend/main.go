@@ -51,6 +51,9 @@ func main() {
 	wsHub := notifications.NewHub(log, db)
 	go wsHub.Run()
 
+	// Notifications service (used by multiple modules)
+	notifier := notifications.NewService(wsHub, log, db)
+
 	// Initialize JWT maker
 	jwtMaker := pkg.NewJWTMaker(cfg.JWTSecret)
 
@@ -58,7 +61,7 @@ func main() {
 	// Auth Module
 	authRepo := auth.NewRepository(db)
 	authService := auth.NewService(authRepo, cfg, log)
-	authHandler := auth.NewHandler(authService, log)
+	authHandler := auth.NewHandler(authService, notifier, log)
 
 	// Users Module
 	usersRepo := users.NewRepository(db)
@@ -67,7 +70,7 @@ func main() {
 
 	// Vendors Module
 	vendorsRepo := vendors.NewRepository(db)
-	vendorsService := vendors.NewService(vendorsRepo, redisClient, log)
+	vendorsService := vendors.NewService(vendorsRepo, notifier, redisClient, log)
 	vendorsHandler := vendors.NewHandler(vendorsService, log)
 
 	// Riders Module
@@ -76,7 +79,6 @@ func main() {
 	ridersHandler := riders.NewHandler(ridersService, log)
 
 	// Orders Module
-	notifier := notifications.NewService(wsHub, log, db)
 	ordersRepo := orders.NewRepository(db)
 	ordersService := orders.NewService(ordersRepo, notifier, redisClient, db, cfg, log)
 	ordersHandler := orders.NewHandler(ordersService, log)
@@ -85,6 +87,9 @@ func main() {
 	adminRepo := admin.NewRepository(db)
 	adminService := admin.NewService(adminRepo, redisClient, log)
 	adminHandler := admin.NewHandler(adminService, log)
+
+	// Notifications Module
+	notificationsHandler := notifications.NewHandler(db, log)
 
 	// Setup Gin router
 	router := gin.New()
@@ -104,6 +109,7 @@ func main() {
 		ridersHandler,
 		ordersHandler,
 		adminHandler,
+		notificationsHandler,
 		wsHub,
 		jwtMaker,
 		log,

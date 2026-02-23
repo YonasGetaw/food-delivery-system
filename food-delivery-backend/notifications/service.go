@@ -11,6 +11,7 @@ import (
 )
 
 type NotificationMessage struct {
+	ID        uint        `json:"id,omitempty"`
 	Type      string      `json:"type"`
 	Title     string      `json:"title"`
 	Message   string      `json:"message"`
@@ -34,14 +35,6 @@ func NewService(hub *Hub, logger *zap.Logger, db *gorm.DB) *Service {
 }
 
 func (s *Service) sendToUser(userID uint, msg *NotificationMessage) {
-	jsonMsg, err := json.Marshal(msg)
-	if err != nil {
-		s.logger.Error("Failed to marshal notification", zap.Error(err))
-		return
-	}
-
-	s.hub.BroadcastToUser(userID, jsonMsg)
-
 	// Save to database
 	notification := &database.Notification{
 		UserID:      userID,
@@ -51,7 +44,19 @@ func (s *Service) sendToUser(userID uint, msg *NotificationMessage) {
 		ReferenceID: msg.Reference,
 		IsRead:      false,
 	}
-	s.db.Create(notification)
+	if err := s.db.Create(notification).Error; err != nil {
+		s.logger.Error("Failed to save notification", zap.Error(err))
+	} else {
+		msg.ID = notification.ID
+	}
+
+	jsonMsg, err := json.Marshal(msg)
+	if err != nil {
+		s.logger.Error("Failed to marshal notification", zap.Error(err))
+		return
+	}
+
+	s.hub.BroadcastToUser(userID, jsonMsg)
 }
 
 func (s *Service) NotifyStudent(studentID uint, title, message, notificationType, reference string) {

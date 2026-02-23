@@ -82,6 +82,8 @@ func (s *Service) assignRiderToOrder(orderID, riderID uint) error {
 
 	// Send notifications
 	s.notifier.NotifyRiderAssigned(order, riderID)
+	s.notifier.NotifyAdmin("Rider Assigned",
+		fmt.Sprintf("Rider #%d was assigned to order #%s", riderID, order.OrderNumber))
 
 	return nil
 }
@@ -290,6 +292,10 @@ func (s *Service) CreateOrder(studentID uint, req *CreateOrderRequest) (*databas
 	s.notifier.NotifyStudent(studentID, "Order Confirmed",
 		fmt.Sprintf("Your order #%s has been placed successfully", order.OrderNumber),
 		"order_placed", fmt.Sprintf("%d", order.ID))
+
+	// Notify admin
+	s.notifier.NotifyAdmin("New Order Placed",
+		fmt.Sprintf("A new order #%s has been placed", order.OrderNumber))
 
 	return order, nil
 }

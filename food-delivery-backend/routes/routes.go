@@ -23,6 +23,7 @@ func SetupRoutes(
 	ridersHandler *riders.Handler,
 	ordersHandler *orders.Handler,
 	adminHandler *admin.Handler,
+	notificationsHandler *notifications.Handler,
 	wsHub *notifications.Hub,
 	jwtMaker *pkg.JWTMaker,
 	logger *zap.Logger,
@@ -49,6 +50,14 @@ func SetupRoutes(
 		{
 			// WebSocket connection
 			protected.GET("/ws", wsHub.HandleWebSocket)
+
+			// Notifications
+			nRoutes := protected.Group("/notifications")
+			{
+				nRoutes.GET("", notificationsHandler.ListMyNotifications)
+				nRoutes.POST("/:id/read", notificationsHandler.MarkNotificationRead)
+				nRoutes.POST("/read-all", notificationsHandler.MarkAllNotificationsRead)
+			}
 
 			// Auth routes
 			protected.GET("/auth/me", usersHandler.GetProfile)
