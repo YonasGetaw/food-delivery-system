@@ -16,7 +16,7 @@ import {
   Moon,
   Settings,
   UserCircle,
-  DoorOpen,
+  LogOut,
   Menu,
 } from 'lucide-react';
 import { getAssetUrl } from '../../utils/helpers';
@@ -143,7 +143,7 @@ const AdminLayout = ({ children }) => {
 					}}
 					className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
 				  >
-          <DoorOpen className="w-4 h-4 text-[#db2777]" />
+          <LogOut className="w-4 h-4 text-[#db2777]" />
           Sign Out
 				  </button>
                 </div>
