@@ -89,14 +89,22 @@ const AdminLayout = ({ children }) => {
     <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 flex flex-col">
       <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
         <div className="px-6 py-4 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setSidebarCollapsed((v) => !v)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-          </button>
+          <div className="flex items-center gap-3">
+            <Link to="/admin" className="flex items-center gap-3 select-none">
+              <span className="w-10 h-10 rounded-lg border-2 border-[#db2777] text-[#db2777] inline-flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5" />
+              </span>
+              <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+            </button>
+          </div>
 
           <div className="flex items-center justify-end gap-2">
             <button
@@ -183,13 +191,7 @@ const AdminLayout = ({ children }) => {
         <aside
           className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-full shrink-0 bg-white dark:bg-gray-900 shadow-md transition-[width] duration-200`}
         >
-          <div className={`${sidebarCollapsed ? 'p-4' : 'p-6'}`}>
-            <Link to="/admin" className="flex items-center text-xl font-bold text-[#db2777]">
-              <ShoppingBag className={`w-6 h-6 ${sidebarCollapsed ? '' : 'mr-2'}`} />
-              {!sidebarCollapsed && <span>Food Delivery</span>}
-            </Link>
-          </div>
-          <nav className="mt-4">
+          <nav className="pt-4">
             {navItems.map((item) => (
               <Link
                 key={item.to}
