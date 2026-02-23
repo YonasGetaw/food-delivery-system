@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:18090/api/v1/ws';
 
 export const useWebSocket = () => {
   const { token, isAuthenticated } = useAuth();
