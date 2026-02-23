@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 const AdminOrders = () => {
-  const PAGE_SIZE = 10;
+  const [pageSize, setPageSize] = useState(10);
   const [orders, setOrders] = useState([]);
   const [riders, setRiders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,11 +25,11 @@ const AdminOrders = () => {
     setLoading(true);
     loadOrders();
     loadRiders();
-  }, [page]);
+  }, [page, pageSize]);
 
   const loadOrders = async () => {
     try {
-      const response = await adminAPI.getOrders({ page, limit: PAGE_SIZE });
+      const response = await adminAPI.getOrders({ page, limit: pageSize });
       setOrders(response.data || response || []);
       setTotalPages(response.pagination?.total_pages || 1);
       setTotalRows(
@@ -100,8 +100,8 @@ const AdminOrders = () => {
 
   if (loading) return <LoadingSpinner />;
 
-  const startEntry = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const endEntry = totalRows === 0 ? 0 : Math.min(page * PAGE_SIZE, totalRows);
+  const startEntry = totalRows === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endEntry = totalRows === 0 ? 0 : Math.min(page * pageSize, totalRows);
 
   const pagesToShow = Array.from(
     new Set([page - 1, page, page + 1].filter((p) => p >= 1 && p <= totalPages))
@@ -109,10 +109,27 @@ const AdminOrders = () => {
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
           Home
         </Link>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Per page</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPage(1);
+              setPageSize(Number(e.target.value));
+            }}
+            className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+            aria-label="Per page"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-white rounded-none shadow-md overflow-hidden border border-gray-200">

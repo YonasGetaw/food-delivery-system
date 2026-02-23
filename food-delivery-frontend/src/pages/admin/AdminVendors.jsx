@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Plus, Store } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminVendors = () => {
-  const PAGE_SIZE = 10;
+  const [pageSize, setPageSize] = useState(10);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -30,11 +30,11 @@ const AdminVendors = () => {
   useEffect(() => {
     setLoading(true);
     loadVendors();
-  }, [page]);
+  }, [page, pageSize]);
 
   const loadVendors = async () => {
     try {
-      const response = await adminAPI.getVendors(page, PAGE_SIZE);
+      const response = await adminAPI.getVendors(page, pageSize);
       setVendors(response.data || response || []);
       setTotalPages(response.pagination?.total_pages || 1);
       setTotalRows(
@@ -74,8 +74,8 @@ const AdminVendors = () => {
 
   if (loading) return <LoadingSpinner />;
 
-  const startEntry = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const endEntry = totalRows === 0 ? 0 : Math.min(page * PAGE_SIZE, totalRows);
+  const startEntry = totalRows === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endEntry = totalRows === 0 ? 0 : Math.min(page * pageSize, totalRows);
 
   const pagesToShow = Array.from(
     new Set([page - 1, page, page + 1].filter((p) => p >= 1 && p <= totalPages))
@@ -87,10 +87,29 @@ const AdminVendors = () => {
         <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
           Home
         </Link>
-        <Button variant="primary" onClick={() => setShowForm(!showForm)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Vendor
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Per page</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPage(1);
+                setPageSize(Number(e.target.value));
+              }}
+              className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+              aria-label="Per page"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <Button variant="primary" onClick={() => setShowForm(!showForm)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Vendor
+          </Button>
+        </div>
       </div>
 
       {showForm && (
