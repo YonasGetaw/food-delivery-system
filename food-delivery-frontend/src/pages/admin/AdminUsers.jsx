@@ -3,14 +3,16 @@ import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api/admin';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Button from '../../components/common/Button';
-import { UserPlus, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ToggleLeft, ToggleRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AdminUsers = () => {
+  const PAGE_SIZE = 10;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
   const [headerClicked, setHeaderClicked] = useState(false);
 
   useEffect(() => {
@@ -20,9 +22,14 @@ const AdminUsers = () => {
 
   const loadUsers = async () => {
     try {
-      const response = await adminAPI.getUsers(page, 10);
+      const response = await adminAPI.getUsers(page, PAGE_SIZE);
       setUsers(response.data || response || []);
       setTotalPages(response.pagination?.total_pages || 1);
+      setTotalRows(
+        typeof response.pagination?.total_rows === 'number'
+          ? response.pagination.total_rows
+          : (response.data || response || []).length
+      );
     } catch {
       toast.error('Failed to load users');
     } finally {
@@ -41,6 +48,13 @@ const AdminUsers = () => {
   };
 
   if (loading) return <LoadingSpinner />;
+
+  const startEntry = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const endEntry = totalRows === 0 ? 0 : Math.min(page * PAGE_SIZE, totalRows);
+
+  const pagesToShow = Array.from(
+    new Set([page - 1, page, page + 1].filter((p) => p >= 1 && p <= totalPages))
+  );
 
   return (
     <div>
@@ -92,17 +106,52 @@ const AdminUsers = () => {
           </tbody>
         </table>
       </div>
-      {totalPages > 1 && (
-        <div className="flex justify-center space-x-2 mt-6">
-          <Button variant="secondary" onClick={() => setPage(page - 1)} disabled={page === 1}>
-            Previous
-          </Button>
-          <span className="px-4 py-2">Page {page} of {totalPages}</span>
-          <Button variant="secondary" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
-            Next
-          </Button>
+
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-sm text-gray-700">
+          Showing <span className="font-semibold">{startEntry}</span> to{' '}
+          <span className="font-semibold">{endEntry}</span> of{' '}
+          <span className="font-semibold">{totalRows}</span> entries
+        </p>
+
+        <div className="inline-flex items-stretch overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          {pagesToShow.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPage(p)}
+              className={
+                p === page
+                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-green-500 text-white'
+                  : 'min-w-10 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border-l border-gray-200'
+              }
+              aria-current={p === page ? 'page' : undefined}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            className="px-3 py-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border-l border-gray-200"
+            aria-label="Next page"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
