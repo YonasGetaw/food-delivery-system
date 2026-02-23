@@ -10,7 +10,7 @@ import {
   Store,
   Bike,
   ShoppingBag,
-  Utensils,
+  Truck,
   LineChart,
   LayoutDashboard,
   Bell,
@@ -92,7 +92,7 @@ const AdminLayout = ({ children }) => {
         <div className="px-6 py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-5">
             <Link to="/admin" className="flex items-center gap-3 select-none">
-              <Utensils className="w-9 h-9 text-[#db2777]" />
+              <Truck className="w-9 h-9 text-[#db2777]" />
               <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
             </Link>
             <button
