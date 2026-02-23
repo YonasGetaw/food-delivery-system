@@ -192,7 +192,7 @@ const AdminOrders = () => {
               onClick={() => setPage(p)}
               className={
                 p === page
-                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-green-500 text-white'
+                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-[#db2777] text-white'
                   : 'min-w-10 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border-l border-gray-200'
               }
               aria-current={p === page ? 'page' : undefined}
