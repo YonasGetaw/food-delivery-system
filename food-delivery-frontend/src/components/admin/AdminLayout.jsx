@@ -112,7 +112,7 @@ const AdminLayout = ({ children }) => {
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Notifications"
             >
-              <Bell className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              <Bell className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
             </button>
 
             <button
@@ -122,9 +122,9 @@ const AdminLayout = ({ children }) => {
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <Sun className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
               ) : (
-                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <Moon className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
               )}
             </button>
 
@@ -142,7 +142,7 @@ const AdminLayout = ({ children }) => {
                     <span>{initial}</span>
                   )}
                 </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{displayName || user?.email}</span>
+                <span className="text-sm font-medium text-[#db2777] dark:text-pink-400">{displayName || user?.email}</span>
                 <span
                   aria-hidden="true"
                   className="w-0 h-0 border-l-4 border-r-4 border-t-6 border-l-transparent border-r-transparent border-t-[#db2777]"
