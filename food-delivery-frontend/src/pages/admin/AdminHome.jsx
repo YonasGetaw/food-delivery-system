@@ -49,11 +49,6 @@ const AdminHome = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl bg-gradient-to-br from-pink-50 to-white border border-pink-100 p-6">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-1">Overview, analytics, and recent activity</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => (
           <div key={card.label} className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
