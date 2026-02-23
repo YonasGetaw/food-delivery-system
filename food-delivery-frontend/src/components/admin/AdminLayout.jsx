@@ -90,11 +90,7 @@ const AdminLayout = ({ children }) => {
       <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
         <div className="px-6 py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-5">
-            <Link
-              to="/admin"
-              className={`flex items-center gap-3 select-none ${sidebarCollapsed ? 'invisible pointer-events-none' : ''}`}
-              aria-hidden={sidebarCollapsed}
-            >
+            <Link to="/admin" className="flex items-center gap-3 select-none">
               <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
             </Link>
             <button
