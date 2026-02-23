@@ -196,7 +196,7 @@ const AdminLayout = ({ children }) => {
                 key={item.to}
                 to={item.to}
                 title={sidebarCollapsed ? item.label : undefined}
-                className={`flex items-center text-[#db2777] dark:text-pink-400 hover:bg-[#fce7f3] dark:hover:bg-gray-800 ${
+                className={`flex items-center text-[#db2777] dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${
                   sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-6 py-3'
                 }`}
               >
