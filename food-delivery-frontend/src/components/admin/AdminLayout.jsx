@@ -91,6 +91,9 @@ const AdminLayout = ({ children }) => {
         <div className="px-6 py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-5">
             <Link to="/admin" className="flex items-center gap-3 select-none">
+              <span className="w-10 h-10 rounded-lg border-2 border-[#db2777] text-[#db2777] inline-flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5" />
+              </span>
               <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
             </Link>
             <button
