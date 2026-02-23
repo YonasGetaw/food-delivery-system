@@ -89,7 +89,7 @@ const AdminLayout = ({ children }) => {
     <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 flex flex-col">
       <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
         <div className="px-6 py-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             {!sidebarCollapsed && (
               <Link to="/admin" className="flex items-center gap-3 select-none">
                 <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
@@ -98,10 +98,10 @@ const AdminLayout = ({ children }) => {
             <button
               type="button"
               onClick={() => setSidebarCollapsed((v) => !v)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Toggle sidebar"
             >
-              <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              <Menu className="w-6 h-6 text-gray-700 dark:text-gray-200" />
             </button>
           </div>
 
