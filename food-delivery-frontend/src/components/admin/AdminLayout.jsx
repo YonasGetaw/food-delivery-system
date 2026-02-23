@@ -86,50 +86,19 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 flex">
-      <aside
-        className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-screen shrink-0 bg-white dark:bg-gray-900 shadow-md transition-[width] duration-200`}
-      >
-        <div className={`${sidebarCollapsed ? 'p-4' : 'p-6'}`}>
-          <Link to="/admin" className="flex items-center text-xl font-bold text-[#db2777]">
-            <ShoppingBag className={`w-6 h-6 ${sidebarCollapsed ? '' : 'mr-2'}`} />
-            {!sidebarCollapsed && <span>Food Delivery</span>}
-          </Link>
-        </div>
-        <nav className="mt-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              title={sidebarCollapsed ? item.label : undefined}
-              className={`flex items-center text-[#db2777] dark:text-pink-400 hover:bg-[#fce7f3] dark:hover:bg-gray-800 ${
-                sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-6 py-3'
-              }`}
-            >
-              <item.icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'mr-3'}`} />
-              {!sidebarCollapsed && item.label}
-            </Link>
-          ))}
-        </nav>
-      </aside>
-      <main className="flex-1 h-screen overflow-y-auto">
-        <header className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800">
-          <div className="px-6 py-4 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setSidebarCollapsed((v) => !v)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-              </button>
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">Food Delivery</span>
-              </div>
-            </div>
+    <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 flex flex-col">
+      <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
+        <div className="px-6 py-4 flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed((v) => !v)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+          </button>
 
-            <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => toast.success('No new notifications')}
@@ -206,12 +175,41 @@ const AdminLayout = ({ children }) => {
                 </div>
               )}
             </div>
-            </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="p-6">{children}</div>
-      </main>
+      <div className="flex flex-1 overflow-hidden">
+        <aside
+          className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-full shrink-0 bg-white dark:bg-gray-900 shadow-md transition-[width] duration-200`}
+        >
+          <div className={`${sidebarCollapsed ? 'p-4' : 'p-6'}`}>
+            <Link to="/admin" className="flex items-center text-xl font-bold text-[#db2777]">
+              <ShoppingBag className={`w-6 h-6 ${sidebarCollapsed ? '' : 'mr-2'}`} />
+              {!sidebarCollapsed && <span>Food Delivery</span>}
+            </Link>
+          </div>
+          <nav className="mt-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                title={sidebarCollapsed ? item.label : undefined}
+                className={`flex items-center text-[#db2777] dark:text-pink-400 hover:bg-[#fce7f3] dark:hover:bg-gray-800 ${
+                  sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-6 py-3'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'mr-3'}`} />
+                {!sidebarCollapsed && item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="flex-1 h-full overflow-y-auto">
+          <div className="p-6">{children}</div>
+        </main>
+      </div>
 
       {changePasswordOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
