@@ -1,8 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../common/Button';
-import Input from '../common/Input';
 import toast from 'react-hot-toast';
 import {
   Shield,
@@ -17,7 +15,6 @@ import {
   Sun,
   Moon,
   Settings,
-  KeyRound,
   UserCircle,
   DoorOpen,
   Menu,
@@ -25,18 +22,12 @@ import {
 import { getAssetUrl } from '../../utils/helpers';
 
 const AdminLayout = ({ children }) => {
-  const { user, logout, changePassword } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
 
   useEffect(() => {
     const root = document.documentElement;
@@ -69,21 +60,6 @@ const AdminLayout = ({ children }) => {
 
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
-  const handleSubmitChangePassword = async (e) => {
-    e.preventDefault();
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('New password and confirm password do not match');
-      return;
-    }
-    try {
-      await changePassword(passwordForm.oldPassword, passwordForm.newPassword);
-      setChangePasswordOpen(false);
-      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    } catch {
-      // toast handled in context
-    }
   };
 
   return (
@@ -145,7 +121,7 @@ const AdminLayout = ({ children }) => {
                 <span className="text-sm font-medium text-[#db2777] dark:text-pink-400">{displayName || user?.email}</span>
                 <span
                   aria-hidden="true"
-                  className="w-0 h-0 border-l-4 border-r-4 border-t-6 border-l-transparent border-r-transparent border-t-[#db2777]"
+                  className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#db2777]"
                 />
               </button>
 
@@ -159,18 +135,6 @@ const AdminLayout = ({ children }) => {
                     <Settings className="w-4 h-4 text-[#db2777]" />
                     Account Settings
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileMenuOpen(false);
-                      setChangePasswordOpen(true);
-                    }}
-                    className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <KeyRound className="w-4 h-4 text-[#db2777]" />
-                    Change Password
-                  </button>
-
 				  <button
 					type="button"
 					onClick={async () => {
@@ -215,44 +179,6 @@ const AdminLayout = ({ children }) => {
         </main>
       </div>
 
-      {changePasswordOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full border dark:border-gray-800">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Change Password</h3>
-            <form onSubmit={handleSubmitChangePassword} className="space-y-3">
-              <Input
-                label="Current Password"
-                type="password"
-                value={passwordForm.oldPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
-                required
-              />
-              <Input
-                label="New Password"
-                type="password"
-                value={passwordForm.newPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                required
-              />
-              <Input
-                label="Confirm New Password"
-                type="password"
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                required
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="secondary" onClick={() => setChangePasswordOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" variant="primary">
-                  Update
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

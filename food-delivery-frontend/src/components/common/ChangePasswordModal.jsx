@@ -2,22 +2,29 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from './Input';
 import Button from './Button';
+import toast from 'react-hot-toast';
 
 const ChangePasswordModal = ({ open, onClose }) => {
   const { changePassword } = useAuth();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error('New password and confirm password do not match');
+      return;
+    }
     setLoading(true);
     try {
       await changePassword(oldPassword, newPassword);
       setOldPassword('');
       setNewPassword('');
+      setConfirmPassword('');
       onClose?.();
     } finally {
       setLoading(false);
@@ -54,12 +61,24 @@ const ChangePasswordModal = ({ open, onClose }) => {
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
+          <Input
+            label="Confirm New Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={loading} disabled={!oldPassword || !newPassword}>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={loading}
+              disabled={!oldPassword || !newPassword || !confirmPassword}
+            >
               Update
             </Button>
           </div>

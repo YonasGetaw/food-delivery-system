@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { usersAPI } from '../../api/users';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/common/Button';
+import ChangePasswordModal from '../../components/common/ChangePasswordModal';
 import Input from '../../components/common/Input';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { getAssetUrl } from '../../utils/helpers';
@@ -12,6 +13,7 @@ const AdminProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ first_name: '', last_name: '', phone: '' });
   const fileInputRef = useRef(null);
@@ -153,6 +155,18 @@ const AdminProfile = () => {
           </div>
         </form>
       </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Security</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">Update your password</p>
+        <div className="mt-4 flex justify-end">
+          <Button type="button" variant="primary" onClick={() => setChangePasswordOpen(true)}>
+            Change Password
+          </Button>
+        </div>
+      </div>
+
+      <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
     </div>
   );
 };
