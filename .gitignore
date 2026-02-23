@@ -1,0 +1,27 @@
+# Secrets
+**/.env
+
+# Node
+**/node_modules/
+**/dist/
+
+# Go
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+**/*.test
+**/*.out
+
+# Logs
+**/*.log
+
+# IDE
+.vscode/
+
+# Uploads
+**/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
