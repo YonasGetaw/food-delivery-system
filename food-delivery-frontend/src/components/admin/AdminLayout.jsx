@@ -16,10 +16,10 @@ import {
   Bell,
   Sun,
   Moon,
-  ChevronDown,
+  Settings,
   KeyRound,
   UserCircle,
-  LogOut,
+  DoorOpen,
   Menu,
 } from 'lucide-react';
 import { getAssetUrl } from '../../utils/helpers';
@@ -143,7 +143,10 @@ const AdminLayout = ({ children }) => {
                   )}
                 </div>
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{displayName || user?.email}</span>
-                <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                <span
+                  aria-hidden="true"
+                  className="w-0 h-0 border-l-4 border-r-4 border-t-6 border-l-transparent border-r-transparent border-t-[#db2777]"
+                />
               </button>
 
               {profileMenuOpen && (
@@ -153,8 +156,8 @@ const AdminLayout = ({ children }) => {
                     onClick={() => setProfileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <UserCircle className="w-4 h-4" />
-                    Profile
+                    <Settings className="w-4 h-4 text-[#db2777]" />
+                    Account Settings
                   </Link>
                   <button
                     type="button"
@@ -164,7 +167,7 @@ const AdminLayout = ({ children }) => {
                     }}
                     className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <KeyRound className="w-4 h-4" />
+                    <KeyRound className="w-4 h-4 text-[#db2777]" />
                     Change Password
                   </button>
 
@@ -176,8 +179,8 @@ const AdminLayout = ({ children }) => {
 					}}
 					className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
 				  >
-					<LogOut className="w-4 h-4" />
-					Logout
+          <DoorOpen className="w-4 h-4 text-[#db2777]" />
+          Sign Out
 				  </button>
                 </div>
               )}
