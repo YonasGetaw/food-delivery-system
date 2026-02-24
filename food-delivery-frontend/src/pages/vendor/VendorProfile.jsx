@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
-import { vendorsAPI } from '../../api/vendors';
+import { useRef, useState, useEffect } from 'react';
+import { uploadVendorImage, vendorsAPI } from '../../api/vendors';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import ChangePasswordModal from '../../components/common/ChangePasswordModal';
 import { Store } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getAssetUrl } from '../../utils/helpers';
 
 const VendorProfile = () => {
   const [loading, setLoading] = useState(true);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const logoInputRef = useRef(null);
+  const coverInputRef = useRef(null);
   const [formData, setFormData] = useState({
     business_name: '',
     business_address: '',
@@ -60,6 +65,51 @@ const VendorProfile = () => {
     }
   };
 
+  const validateImageFile = (file) => {
+    if (!file) return 'No file selected';
+    if (file.size > 5 * 1024 * 1024) return 'Image size must be less than 5MB';
+
+    const ext = (file.name || '').split('.').pop()?.toLowerCase();
+    const allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!ext || !allowed.includes(ext)) return 'Only JPG, PNG, and GIF images are allowed';
+
+    return '';
+  };
+
+  const handleUpload = async (kind, file) => {
+    const msg = validateImageFile(file);
+    if (msg) {
+      toast.error(msg);
+      return;
+    }
+
+    const setUploading = kind === 'logo' ? setUploadingLogo : setUploadingCover;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await uploadVendorImage(fd);
+      const payload = res?.data || res;
+      const imageUrl = payload?.image_url;
+
+      if (!imageUrl) {
+        toast.error('Upload failed. Please try again.');
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        ...(kind === 'logo' ? { logo_url: imageUrl } : { cover_image_url: imageUrl }),
+      }));
+
+      toast.success(kind === 'logo' ? 'Logo updated successfully.' : 'Cover image updated successfully.');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) return <div className="text-center py-8 text-gray-700 dark:text-gray-200">Loading...</div>;
 
   return (
@@ -92,16 +142,74 @@ const VendorProfile = () => {
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
         />
-        <Input
-          label="Logo URL"
-          value={formData.logo_url}
-          onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-        />
-        <Input
-          label="Cover Image URL"
-          value={formData.cover_image_url}
-          onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 p-4">
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Logo</div>
+            {formData.logo_url ? (
+              <div className="mb-3">
+                <img
+                  src={getAssetUrl(formData.logo_url)}
+                  alt="Logo"
+                  className="h-20 w-20 rounded-lg object-cover border border-gray-200 dark:border-gray-800"
+                />
+              </div>
+            ) : (
+              <div className="mb-3 text-sm text-gray-600 dark:text-gray-300">No logo uploaded</div>
+            )}
+
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleUpload('logo', e.target.files?.[0])}
+              disabled={uploadingLogo}
+            />
+            <Button
+              type="button"
+              variant="primary"
+              loading={uploadingLogo}
+              disabled={uploadingLogo}
+              onClick={() => logoInputRef.current?.click()}
+            >
+              Upload Logo
+            </Button>
+          </div>
+
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 p-4">
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Cover Image</div>
+            {formData.cover_image_url ? (
+              <div className="mb-3">
+                <img
+                  src={getAssetUrl(formData.cover_image_url)}
+                  alt="Cover"
+                  className="h-20 w-full rounded-lg object-cover border border-gray-200 dark:border-gray-800"
+                />
+              </div>
+            ) : (
+              <div className="mb-3 text-sm text-gray-600 dark:text-gray-300">No cover image uploaded</div>
+            )}
+
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleUpload('cover', e.target.files?.[0])}
+              disabled={uploadingCover}
+            />
+            <Button
+              type="button"
+              variant="primary"
+              loading={uploadingCover}
+              disabled={uploadingCover}
+              onClick={() => coverInputRef.current?.click()}
+            >
+              Upload Cover
+            </Button>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Delivery Radius (km)"
