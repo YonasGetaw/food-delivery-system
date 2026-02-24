@@ -1,21 +1,35 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../common/Button';
 import ChangePasswordModal from '../common/ChangePasswordModal';
 import toast from 'react-hot-toast';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { notificationsAPI } from '../../api/notifications';
-import { Store, Menu, Package, DollarSign, User, Bell, Sun, Moon, ChevronDown, UserCircle, KeyRound } from 'lucide-react';
+import {
+  Store,
+  UtensilsCrossed,
+  Package,
+  DollarSign,
+  Bell,
+  Sun,
+  Moon,
+  Settings,
+  KeyRound,
+  LogOut,
+  Menu,
+} from 'lucide-react';
+import { getAssetUrl } from '../../utils/helpers';
 
 const VendorLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { messages } = useWebSocket();
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
@@ -39,11 +53,19 @@ const VendorLayout = ({ children }) => {
   };
 
   const navItems = [
-    { to: '/vendor', icon: Store, label: 'Dashboard' },
-    { to: '/vendor/menu', icon: Menu, label: 'Menu' },
+    { to: '/vendor', icon: Store, label: 'Home' },
+    { to: '/vendor/menu', icon: UtensilsCrossed, label: 'Menu' },
     { to: '/vendor/orders', icon: Package, label: 'Orders' },
     { to: '/vendor/earnings', icon: DollarSign, label: 'Earnings' },
   ];
+
+  const displayName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+  const initial = (user?.firstName || user?.email || 'U').trim().charAt(0).toUpperCase();
+  const avatarSrc = user?.profileImageUrl ? getAssetUrl(user.profileImageUrl) : '';
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const normalizedNotifications = useMemo(() => {
     return (notifications || []).map((n) => {
@@ -117,40 +139,25 @@ const VendorLayout = ({ children }) => {
   }, [notificationsOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
-      <aside className="w-64 bg-white dark:bg-gray-900 shadow-md">
-        <div className="p-6">
-          <Link to="/vendor" className="flex items-center text-xl font-bold text-[#db2777]">
-            <Store className="w-6 h-6 mr-2" />
-            Vendor Panel
-          </Link>
-        </div>
-        <nav className="mt-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-[#fce7f3] dark:hover:bg-gray-800 hover:text-[#db2777]"
-            >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.label}
+    <div className="h-screen overflow-hidden bg-pink-50 dark:bg-gray-950 flex flex-col">
+      <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
+        <div className="px-6 py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-5">
+            <Link to="/vendor" className="flex items-center gap-3 select-none">
+              <Store className="w-9 h-9 text-pink-600 dark:text-pink-300" />
+              <span className="text-2xl font-bold text-pink-600 dark:text-pink-300">Vendor Panel</span>
             </Link>
-          ))}
-        </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t dark:border-gray-800">
-          <div className="flex items-center mb-4">
-            <User className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-300" />
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.firstName} {user?.lastName}</span>
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              className="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-7 h-7 text-pink-700 dark:text-gray-200" />
+            </button>
           </div>
-          <Button variant="secondary" size="sm" className="w-full" onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
-      </aside>
 
-      <main className="flex-1 overflow-auto">
-        <header className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800">
-          <div className="px-6 py-4 flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2">
             <div className="relative" ref={notificationsRef}>
               <button
                 type="button"
@@ -164,10 +171,10 @@ const VendorLayout = ({ children }) => {
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-label="Notifications"
               >
-                <Bell className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <Bell className="w-5 h-5 text-pink-600 dark:text-pink-300" />
 
                 {effectiveUnreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#db2777] text-white text-[11px] font-semibold leading-[18px] text-center">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-600 dark:bg-pink-500/80 text-white text-[11px] font-semibold leading-[18px] text-center">
                     {formattedUnreadCount}
                   </span>
                 ) : null}
@@ -209,7 +216,9 @@ const VendorLayout = ({ children }) => {
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <div className="flex items-start gap-2">
-                                {!n.is_read ? <span className="mt-1.5 w-2 h-2 rounded-full bg-[#db2777] shrink-0" /> : null}
+                                {!n.is_read ? (
+                                  <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-600 dark:bg-pink-500/80 shrink-0" />
+                                ) : null}
                                 <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
                               </div>
                             </div>
@@ -230,14 +239,14 @@ const VendorLayout = ({ children }) => {
 
             <button
               type="button"
-              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+              onClick={handleToggleTheme}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <Sun className="w-5 h-5 text-pink-600 dark:text-pink-300" />
               ) : (
-                <Moon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                <Moon className="w-5 h-5 text-pink-600 dark:text-pink-300" />
               )}
             </button>
 
@@ -248,21 +257,37 @@ const VendorLayout = ({ children }) => {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-label="Profile menu"
               >
-                <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.firstName} {user?.lastName}</span>
-                <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                <div className="w-8 h-8 rounded-full bg-pink-600 dark:bg-pink-500/80 text-white flex items-center justify-center font-semibold overflow-hidden">
+                  {avatarSrc ? (
+                    <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{initial}</span>
+                  )}
+                </div>
+                <span className="text-sm font-medium text-pink-600 dark:text-pink-300">{displayName || user?.email}</span>
+                <span
+                  aria-hidden="true"
+                  className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-l-transparent border-r-transparent border-t-pink-600 dark:border-t-pink-300"
+                />
               </button>
 
               {profileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-800 shadow-lg overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                    <div className="text-sm font-semibold text-pink-600 dark:text-pink-300 text-center truncate">
+                      {displayName || user?.email || 'Vendor'}
+                    </div>
+                  </div>
+
                   <Link
                     to="/vendor/profile"
                     onClick={() => setProfileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <UserCircle className="w-4 h-4" />
-                    Profile
+                    <Settings className="w-4 h-4 text-pink-600 dark:text-pink-300" />
+                    Account Settings
                   </Link>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -271,17 +296,65 @@ const VendorLayout = ({ children }) => {
                     }}
                     className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <KeyRound className="w-4 h-4" />
+                    <KeyRound className="w-4 h-4 text-pink-600 dark:text-pink-300" />
                     Change Password
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setProfileMenuOpen(false);
+                      await handleLogout();
+                    }}
+                    className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    <LogOut className="w-4 h-4 text-pink-600 dark:text-pink-300" />
+                    Sign Out
                   </button>
                 </div>
               )}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="p-6">{children}</div>
-      </main>
+      <div className="flex flex-1 overflow-hidden">
+        <aside
+          className={`${sidebarCollapsed ? 'w-20' : 'w-64'} h-full shrink-0 bg-white dark:bg-gray-900 shadow-md transition-[width] duration-200`}
+        >
+          <nav className="pt-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                title={sidebarCollapsed ? item.label : undefined}
+                className={`flex items-center rounded-lg text-pink-600 dark:text-pink-300 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                  sidebarCollapsed ? 'mx-2 justify-center px-3 py-3.5' : 'mx-3 px-5 py-3.5'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 ${sidebarCollapsed ? '' : 'mr-3'}`} />
+                {!sidebarCollapsed && item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="flex-1 h-full overflow-y-auto">
+          <div className="p-6">
+            {location.pathname !== '/vendor' ? (
+              <div className="mb-4">
+                <Link
+                  to="/vendor"
+                  className="text-sm font-semibold text-pink-600 dark:text-pink-300 hover:underline"
+                >
+                  Home
+                </Link>
+              </div>
+            ) : null}
+            {children}
+          </div>
+        </main>
+      </div>
 
       <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
     </div>

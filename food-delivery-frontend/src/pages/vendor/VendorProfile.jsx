@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { vendorsAPI } from '../../api/vendors';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import ChangePasswordModal from '../../components/common/ChangePasswordModal';
 import { Store } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const VendorProfile = () => {
-  const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [formData, setFormData] = useState({
     business_name: '',
     business_address: '',
@@ -27,7 +28,6 @@ const VendorProfile = () => {
     try {
       const response = await vendorsAPI.getProfile();
       const data = response.data || response;
-      setVendor(data);
       setFormData({
         business_name: data.business_name || '',
         business_address: data.business_address || '',
@@ -38,8 +38,8 @@ const VendorProfile = () => {
         delivery_radius: data.delivery_radius || 5,
         minimum_order: data.minimum_order || 0,
       });
-    } catch (error) {
-      toast.error('Failed to load profile');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to load profile');
     } finally {
       setLoading(false);
     }
@@ -60,16 +60,16 @@ const VendorProfile = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading) return <div className="text-center py-8 text-gray-700 dark:text-gray-200">Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center">
-        <Store className="w-8 h-8 mr-2" />
-        Vendor Profile
+    <div className="max-w-4xl mx-auto space-y-6">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+        <Store className="w-8 h-8 mr-2 text-pink-600 dark:text-pink-300" />
+        Account Settings
       </h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 space-y-4 border border-gray-100 dark:border-gray-800">
         <Input
           label="Business Name"
           value={formData.business_name}
@@ -122,6 +122,18 @@ const VendorProfile = () => {
           Update Profile
         </Button>
       </form>
+
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Security</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">Update your password</p>
+        <div className="mt-4 flex justify-end">
+          <Button type="button" variant="primary" onClick={() => setChangePasswordOpen(true)}>
+            Change Password
+          </Button>
+        </div>
+      </div>
+
+      <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
     </div>
   );
 };

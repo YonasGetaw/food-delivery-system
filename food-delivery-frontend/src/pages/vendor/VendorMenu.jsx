@@ -34,8 +34,8 @@ const VendorMenu = () => {
       const response = await vendorsAPI.getMenuItems();
       const data = response.data || response;
       setMenuItems(Array.isArray(data) ? data : []);
-    } catch (error) {
-      toast.error('Failed to load menu');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to load menu');
     } finally {
       setLoading(false);
     }
@@ -120,8 +120,8 @@ const VendorMenu = () => {
       }
       resetForm();
       loadMenu(); // Reload menu to show new item
-    } catch (error) {
-      toast.error(error.error || 'Failed to save menu item');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to save menu item');
     }
   };
 
@@ -131,8 +131,8 @@ const VendorMenu = () => {
       await vendorsAPI.deleteMenuItem(id);
       toast.success('Menu item deleted');
       loadMenu();
-    } catch (error) {
-      toast.error(error.error || 'Failed to delete');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to delete');
     }
   };
 
@@ -141,8 +141,8 @@ const VendorMenu = () => {
       await vendorsAPI.toggleMenuItemAvailability(id);
       toast.success('Availability updated');
       loadMenu();
-    } catch (error) {
-      toast.error(error.error || 'Failed to update');
+    } catch (err) {
+      toast.error(err?.error || err?.message || 'Failed to update');
     }
   };
 
@@ -167,9 +167,8 @@ const VendorMenu = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
+    <div className="space-y-6">
+      <div className="flex justify-end items-center gap-3 flex-wrap">
         <Button
           variant="primary"
           onClick={() => {
@@ -183,8 +182,8 @@ const VendorMenu = () => {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
             {editingItem ? 'Edit Menu Item' : 'Add Menu Item'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -232,33 +231,33 @@ const VendorMenu = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800"
               />
               {imagePreview && (
                 <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-32 object-cover rounded" />
               )}
             </div>
             <div className="flex items-center space-x-6">
-              <label className="flex items-center">
+              <label className="flex items-center text-gray-700 dark:text-gray-200">
                 <input
                   type="checkbox"
                   checked={formData.is_vegetarian}
                   onChange={(e) => setFormData({ ...formData, is_vegetarian: e.target.checked })}
-                  className="mr-2"
+                  className="mr-2 accent-pink-600"
                 />
                 Vegetarian
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center text-gray-700 dark:text-gray-200">
                 <input
                   type="checkbox"
                   checked={formData.is_spicy}
                   onChange={(e) => setFormData({ ...formData, is_spicy: e.target.checked })}
-                  className="mr-2"
+                  className="mr-2 accent-pink-600"
                 />
                 Spicy
               </label>
@@ -277,7 +276,7 @@ const VendorMenu = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {menuItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div key={item.id} className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden border border-gray-100 dark:border-gray-800">
             {item.image_url && (
               <img
                 src={item.image_url}
@@ -287,7 +286,7 @@ const VendorMenu = () => {
             )}
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{item.name}</h3>
                 <span
                   className={`px-2 py-1 text-xs rounded ${
                     item.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -296,9 +295,9 @@ const VendorMenu = () => {
                   {item.is_available ? 'Available' : 'Unavailable'}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{item.category}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{item.category}</p>
               <div className="flex justify-between items-center mb-3">
-                <span className="text-lg font-bold text-blue-600">
+                <span className="text-lg font-bold text-pink-600 dark:text-pink-300">
                   ETB {item.price?.toFixed(2)}
                   {item.discount_price && (
                     <span className="text-sm text-gray-500 line-through ml-1">
@@ -332,8 +331,8 @@ const VendorMenu = () => {
       </div>
 
       {menuItems.length === 0 && !showForm && (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600">No menu items yet. Add your first item!</p>
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-12 text-center border border-gray-100 dark:border-gray-800">
+          <p className="text-gray-600 dark:text-gray-300">No menu items yet. Add your first item!</p>
         </div>
       )}
     </div>

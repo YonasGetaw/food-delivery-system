@@ -40,11 +40,6 @@ const VendorEarnings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl bg-gradient-to-br from-pink-50 to-white dark:from-gray-900 dark:to-gray-950 border border-pink-100 dark:border-gray-800 p-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Earnings</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">Revenue, commission and payouts</p>
-      </div>
-
       <div className="flex flex-wrap gap-4">
         <input
           type="date"

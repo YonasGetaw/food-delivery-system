@@ -113,14 +113,12 @@ const VendorOrders = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Orders</h1>
-
-      <div className="mb-6 flex flex-wrap gap-4">
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-4">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800"
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
@@ -136,13 +134,13 @@ const VendorOrders = () => {
 
       <div className="space-y-4">
         {orders.map((order) => (
-          <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+          <div key={order.id} className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Order #{order.order_number}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
                 </p>
               </div>
@@ -152,24 +150,24 @@ const VendorOrders = () => {
             </div>
 
             <div className="mb-4">
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-200">
                 <strong>Delivery:</strong> {order.delivery_address}
               </p>
-              <p className="text-gray-700 mt-1">
+              <p className="text-gray-700 dark:text-gray-200 mt-1">
                 <strong>Phone:</strong> {order.customer_phone || order.student?.user?.phone || 'N/A'}
               </p>
               {order.special_instructions && (
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
                   <strong>Notes:</strong> {order.special_instructions}
                 </p>
               )}
             </div>
 
             <div className="mb-4">
-              <p className="font-medium text-gray-900 mb-2">Items:</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">Items:</p>
               <ul className="list-disc list-inside space-y-1">
                 {order.order_items?.map((item) => (
-                  <li key={item.id}>
+                  <li key={item.id} className="text-gray-800 dark:text-gray-200">
                     {item.menu_item?.name || 'Item'} x {item.quantity} - ETB
                     {(item.unit_price * item.quantity).toFixed(2)}
                   </li>
@@ -177,8 +175,8 @@ const VendorOrders = () => {
               </ul>
             </div>
 
-            <div className="flex justify-between items-center pt-4 border-t">
-              <p className="text-xl font-bold text-pink-600">
+            <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+              <p className="text-xl font-bold text-pink-600 dark:text-pink-300">
                 Total: ETB {order.total_amount?.toFixed(2) || '0.00'}
               </p>
               <div className="flex space-x-2">
@@ -232,8 +230,8 @@ const VendorOrders = () => {
 
       {selectedOrder?.action === 'reject' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Reject Order</h3>
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full border border-gray-100 dark:border-gray-800">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Reject Order</h3>
             <Input
               label="Reason (required)"
               value={rejectReason}
@@ -258,9 +256,9 @@ const VendorOrders = () => {
       )}
 
       {orders.length === 0 && (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-12 text-center border border-gray-100 dark:border-gray-800">
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No orders found</p>
+          <p className="text-gray-600 dark:text-gray-300">No orders found</p>
         </div>
       )}
 
@@ -273,7 +271,7 @@ const VendorOrders = () => {
           >
             Previous
           </Button>
-          <span className="px-4 py-2">Page {page} of {totalPages}</span>
+          <span className="px-4 py-2 text-gray-700 dark:text-gray-200">Page {page} of {totalPages}</span>
           <Button
             variant="secondary"
             onClick={() => setPage(page + 1)}
