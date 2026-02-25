@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { vendorsAPI } from '../../api/vendors';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { Store, Star } from 'lucide-react';
+import { getAssetUrl } from '../../utils/helpers';
 
 const VendorList = () => {
   const [vendors, setVendors] = useState([]);
@@ -38,7 +39,7 @@ const VendorList = () => {
           >
             {vendor.cover_image_url ? (
               <img
-                src={vendor.cover_image_url}
+                src={getAssetUrl(vendor.cover_image_url)}
                 alt={vendor.business_name}
                 className="w-full h-48 object-cover"
               />
@@ -48,7 +49,20 @@ const VendorList = () => {
               </div>
             )}
             <div className="p-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{vendor.business_name}</h3>
+              <div className="flex items-center gap-3 mb-2">
+                {vendor.logo_url ? (
+                  <img
+                    src={getAssetUrl(vendor.logo_url)}
+                    alt={vendor.business_name}
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-gray-500" />
+                  </div>
+                )}
+                <h3 className="text-xl font-semibold text-gray-900">{vendor.business_name}</h3>
+              </div>
               <p className="text-gray-600 text-sm mb-3 line-clamp-2">{vendor.description}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">

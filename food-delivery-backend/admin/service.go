@@ -32,6 +32,103 @@ type Service struct {
 	logger      *zap.Logger
 }
 
+func computePeriodRange(period string, now time.Time) (time.Time, time.Time, error) {
+	if period == "" {
+		period = "monthly"
+	}
+
+	loc := now.Location()
+	startOfDay := func(t time.Time) time.Time {
+		return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, loc)
+	}
+
+	switch strings.ToLower(strings.TrimSpace(period)) {
+	case "daily":
+		start := startOfDay(now)
+		return start, now, nil
+	case "weekly":
+		// Monday-start week
+		weekday := int(now.Weekday()) // Sunday=0
+		daysSinceMonday := (weekday + 6) % 7
+		start := startOfDay(now.AddDate(0, 0, -daysSinceMonday))
+		return start, now, nil
+	case "monthly":
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, loc)
+		return start, now, nil
+	case "yearly":
+		start := time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, loc)
+		return start, now, nil
+	default:
+		return time.Time{}, time.Time{}, errors.New("invalid period; expected daily, weekly, monthly, or yearly")
+	}
+}
+
+func (s *Service) GetStatusSummaryReport(period string) (*StatusSummaryReport, error) {
+	period = strings.ToLower(strings.TrimSpace(period))
+	if period == "" {
+		period = "monthly"
+	}
+
+	now := time.Now()
+	start, end, err := computePeriodRange(period, now)
+	if err != nil {
+		return nil, err
+	}
+
+	activeUsers, inactiveUsers, err := s.repo.CountUsersByActive()
+	if err != nil {
+		return nil, err
+	}
+	openVendors, closedVendors, err := s.repo.CountVendorsByOpen()
+	if err != nil {
+		return nil, err
+	}
+	availableRiders, unavailableRiders, err := s.repo.CountRidersByAvailable()
+	if err != nil {
+		return nil, err
+	}
+	ordersByStatus, err := s.repo.CountOrdersByStatus(start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	report := &StatusSummaryReport{}
+	report.Period = ReportPeriod{
+		Period:    period,
+		StartDate: start.Format("2006-01-02"),
+		EndDate:   end.Format("2006-01-02"),
+	}
+
+	report.UsersByStatus = []StatusCount{
+		{Status: "active", Count: activeUsers},
+		{Status: "inactive", Count: inactiveUsers},
+	}
+	report.VendorsByStatus = []StatusCount{
+		{Status: "open", Count: openVendors},
+		{Status: "closed", Count: closedVendors},
+	}
+	report.RidersByStatus = []StatusCount{
+		{Status: "available", Count: availableRiders},
+		{Status: "unavailable", Count: unavailableRiders},
+	}
+
+	orderStatuses := []string{
+		string(database.OrderStatusPending),
+		string(database.OrderStatusConfirmed),
+		string(database.OrderStatusPreparing),
+		string(database.OrderStatusReady),
+		string(database.OrderStatusPickedUp),
+		string(database.OrderStatusDelivered),
+		string(database.OrderStatusCancelled),
+		string(database.OrderStatusRejected),
+	}
+	for _, st := range orderStatuses {
+		report.OrdersByStatus = append(report.OrdersByStatus, StatusCount{Status: st, Count: ordersByStatus[st]})
+	}
+
+	return report, nil
+}
+
 func NewService(repo *Repository, redisClient *redis.RedisClient, logger *zap.Logger) *Service {
 	return &Service{
 		repo:        repo,
@@ -91,6 +188,7 @@ func (s *Service) CreateVendor(req *CreateVendorRequest) (*database.Vendor, erro
 		Latitude:        req.Latitude,
 		Longitude:       req.Longitude,
 		Phone:           req.Phone,
+		LogoURL:         strings.TrimSpace(req.LogoURL),
 		CommissionRate:  commissionRate,
 		IsOpen:          false,
 	}
@@ -163,9 +261,9 @@ func (s *Service) CreateRider(req *CreateRiderRequest) (*database.Rider, error) 
 	return rider, nil
 }
 
-func (s *Service) GetUsers(role string, page, limit int) ([]database.User, int64, error) {
+func (s *Service) GetUsers(role string, isActive *bool, page, limit int) ([]database.User, int64, error) {
 	offset := (page - 1) * limit
-	return s.repo.GetUsers(role, offset, limit)
+	return s.repo.GetUsers(role, isActive, offset, limit)
 }
 
 func (s *Service) GetUser(userID uint) (*database.User, error) {
@@ -188,9 +286,9 @@ func (s *Service) ToggleUserStatus(userID uint) (bool, error) {
 	return user.IsActive, nil
 }
 
-func (s *Service) GetVendors(page, limit int) ([]database.Vendor, int64, error) {
+func (s *Service) GetVendors(isOpen *bool, page, limit int) ([]database.Vendor, int64, error) {
 	offset := (page - 1) * limit
-	return s.repo.GetVendors(offset, limit)
+	return s.repo.GetVendors(isOpen, offset, limit)
 }
 
 func (s *Service) GetRiders(available *bool, page, limit int) ([]database.Rider, int64, error) {

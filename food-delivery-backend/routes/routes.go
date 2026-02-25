@@ -153,6 +153,7 @@ func SetupRoutes(
 			adminRoutes.Use(middleware.RequireRole("admin"))
 			{
 				adminRoutes.GET("/dashboard", adminHandler.GetDashboard)
+				adminRoutes.POST("/upload-image", vendorsHandler.UploadImage)
 				// User management
 				adminRoutes.POST("/vendors", adminHandler.CreateVendor)
 				adminRoutes.POST("/riders", adminHandler.CreateRider)
@@ -175,6 +176,7 @@ func SetupRoutes(
 
 				// Reports
 				adminRoutes.GET("/reports/revenue", adminHandler.GetRevenueReport)
+				adminRoutes.GET("/reports/status-summary", adminHandler.GetStatusSummaryReport)
 			}
 		}
 

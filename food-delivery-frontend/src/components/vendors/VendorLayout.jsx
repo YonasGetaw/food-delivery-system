@@ -19,12 +19,15 @@ import {
   Menu,
 } from 'lucide-react';
 import { getAssetUrl } from '../../utils/helpers';
+import { vendorsAPI } from '../../api/vendors';
 
 const VendorLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { messages } = useWebSocket();
+
+  const [vendorProfile, setVendorProfile] = useState(null);
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -61,7 +64,24 @@ const VendorLayout = ({ children }) => {
 
   const displayName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
   const initial = (user?.firstName || user?.email || 'U').trim().charAt(0).toUpperCase();
-  const avatarSrc = user?.profileImageUrl ? getAssetUrl(user.profileImageUrl) : '';
+  const avatarSrc = vendorProfile?.logo_url
+    ? getAssetUrl(vendorProfile.logo_url)
+    : user?.profileImageUrl
+      ? getAssetUrl(user.profileImageUrl)
+      : '';
+
+  const refreshVendorProfile = async () => {
+    try {
+      const res = await vendorsAPI.getProfile();
+      setVendorProfile(res?.data || res);
+    } catch {
+      // best-effort
+    }
+  };
+
+  useEffect(() => {
+    refreshVendorProfile();
+  }, []);
 
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -253,7 +273,13 @@ const VendorLayout = ({ children }) => {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setProfileMenuOpen((v) => !v)}
+                onClick={async () => {
+                  const next = !profileMenuOpen;
+                  setProfileMenuOpen(next);
+                  if (next) {
+                    await refreshVendorProfile();
+                  }
+                }}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-label="Profile menu"
               >

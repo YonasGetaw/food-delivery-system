@@ -1,5 +1,25 @@
 package admin
 
+type StatusCount struct {
+	Status string `json:"status"`
+	Count  int64  `json:"count"`
+}
+
+type ReportPeriod struct {
+	Period    string `json:"period"`
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+}
+
+type StatusSummaryReport struct {
+	Period ReportPeriod `json:"period"`
+
+	UsersByStatus   []StatusCount `json:"users_by_status"`
+	VendorsByStatus []StatusCount `json:"vendors_by_status"`
+	RidersByStatus  []StatusCount `json:"riders_by_status"`
+	OrdersByStatus  []StatusCount `json:"orders_by_status"`
+}
+
 type CreateVendorRequest struct {
 	Email           string  `json:"email" binding:"omitempty,email"`
 	Password        string  `json:"password" binding:"required,min=6"`
@@ -8,6 +28,7 @@ type CreateVendorRequest struct {
 	Phone           string  `json:"phone" binding:"required"`
 	BusinessName    string  `json:"business_name" binding:"required"`
 	BusinessAddress string  `json:"business_address" binding:"required"`
+	LogoURL         string  `json:"logo_url" binding:"required"`
 	Latitude        float64 `json:"latitude"`
 	Longitude       float64 `json:"longitude"`
 	CommissionRate  float64 `json:"commission_rate"`
