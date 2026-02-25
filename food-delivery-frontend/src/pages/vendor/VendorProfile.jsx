@@ -12,6 +12,8 @@ const VendorProfile = () => {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [logoPreviewNonce, setLogoPreviewNonce] = useState(0);
+  const [coverPreviewNonce, setCoverPreviewNonce] = useState(0);
   const logoInputRef = useRef(null);
   const coverInputRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -76,6 +78,13 @@ const VendorProfile = () => {
     return '';
   };
 
+  const withCacheBuster = (url, nonce) => {
+    if (!url) return '';
+    if (!nonce) return url;
+    const joinChar = url.includes('?') ? '&' : '?';
+    return `${url}${joinChar}v=${nonce}`;
+  };
+
   const handleUpload = async (kind, file) => {
     const msg = validateImageFile(file);
     if (msg) {
@@ -101,6 +110,10 @@ const VendorProfile = () => {
         ...prev,
         ...(kind === 'logo' ? { logo_url: imageUrl } : { cover_image_url: imageUrl }),
       }));
+
+      const now = Date.now();
+      if (kind === 'logo') setLogoPreviewNonce(now);
+      else setCoverPreviewNonce(now);
 
       toast.success(kind === 'logo' ? 'Logo updated successfully.' : 'Cover image updated successfully.');
     } catch (err) {
@@ -149,7 +162,7 @@ const VendorProfile = () => {
             {formData.logo_url ? (
               <div className="mb-3">
                 <img
-                  src={getAssetUrl(formData.logo_url)}
+                  src={withCacheBuster(getAssetUrl(formData.logo_url), logoPreviewNonce)}
                   alt="Logo"
                   className="h-20 w-20 rounded-lg object-cover border border-gray-200 dark:border-gray-800"
                 />
@@ -163,7 +176,11 @@ const VendorProfile = () => {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => handleUpload('logo', e.target.files?.[0])}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                handleUpload('logo', file);
+              }}
               disabled={uploadingLogo}
             />
             <Button
@@ -182,7 +199,7 @@ const VendorProfile = () => {
             {formData.cover_image_url ? (
               <div className="mb-3">
                 <img
-                  src={getAssetUrl(formData.cover_image_url)}
+                  src={withCacheBuster(getAssetUrl(formData.cover_image_url), coverPreviewNonce)}
                   alt="Cover"
                   className="h-20 w-full rounded-lg object-cover border border-gray-200 dark:border-gray-800"
                 />
@@ -196,7 +213,11 @@ const VendorProfile = () => {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => handleUpload('cover', e.target.files?.[0])}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                handleUpload('cover', file);
+              }}
               disabled={uploadingCover}
             />
             <Button
