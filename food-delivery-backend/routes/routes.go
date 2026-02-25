@@ -80,6 +80,7 @@ func SetupRoutes(
 			// Order routes (accessible by all authenticated users with restrictions)
 			orderRoutes := protected.Group("/orders")
 			{
+				orderRoutes.POST("", ordersHandler.CreateOrder)
 				orderRoutes.POST("/", ordersHandler.CreateOrder)
 				orderRoutes.GET("/:id", ordersHandler.GetOrder)
 				orderRoutes.GET("/:id/track", ordersHandler.TrackOrder)
