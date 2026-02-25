@@ -33,7 +33,6 @@ const StudentLayout = ({ children }) => {
       { to: '/student', icon: Home, label: 'Home' },
       { to: '/student/vendors', icon: Store, label: 'Vendors' },
       { to: '/student/orders', icon: Package, label: 'My Orders' },
-      { to: '/student/cart', icon: ShoppingCart, label: 'Cart' },
     ],
     []
   );
@@ -55,41 +54,32 @@ const StudentLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-pink-50 dark:bg-gray-950">
       <header className="shrink-0 w-full z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b dark:border-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-6">
-            <Link to="/student" className="flex items-center gap-3 select-none">
-              <Store className="w-8 h-8 text-pink-600 dark:text-pink-300" />
-              <span className="text-xl font-bold text-pink-600 dark:text-pink-300">Student Panel</span>
-            </Link>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
+          <Link to="/student" className="shrink-0 flex items-center gap-3 select-none">
+            <Store className="w-8 h-8 text-pink-600 dark:text-pink-300" />
+            <span className="text-xl font-bold text-pink-600 dark:text-pink-300">Student Panel</span>
+          </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => {
-                const active = location.pathname === item.to;
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
-                      active
-                        ? 'bg-pink-100 text-pink-700 dark:bg-gray-800 dark:text-pink-200'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-pink-700 dark:text-gray-200 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                    {item.to === '/student/cart' && itemCount > 0 ? (
-                      <span className="ml-1 min-w-[20px] h-5 px-1 rounded-full bg-pink-600 dark:bg-pink-500/80 text-white text-[12px] font-bold leading-5 text-center">
-                        {itemCount > 99 ? '99+' : itemCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-1">
+            {navItems.map((item) => {
+              const active = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${
+                    active
+                      ? 'bg-pink-100 text-pink-700 dark:bg-gray-800 dark:text-pink-200'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-pink-700 dark:text-gray-200 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="shrink-0 flex items-center gap-2">
             <Link
               to="/student/cart"
               className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
