@@ -4,6 +4,7 @@ import { useCart } from '../../hooks/useCart';
 import Button from '../../components/common/Button';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getAssetUrl } from '../../utils/helpers';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Cart = () => {
               <div className="flex items-center space-x-4 flex-1">
                 {item.imageUrl && (
                   <img
-                    src={item.imageUrl}
+                    src={getAssetUrl(item.imageUrl)}
                     alt={item.name}
                     className="w-20 h-20 object-cover rounded"
                   />
@@ -50,7 +51,7 @@ const Cart = () => {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
                   <p className="text-sm text-gray-600">{item.vendorName}</p>
-                  <p className="text-lg font-bold text-blue-600 mt-1">
+                  <p className="text-lg font-bold text-pink-600 mt-1">
                     ${item.price.toFixed(2)}
                   </p>
                 </div>
@@ -100,7 +101,7 @@ const Cart = () => {
           </div>
           <div className="flex justify-between items-center mb-6 pt-4 border-t">
             <span className="text-xl font-bold text-gray-900">Total</span>
-            <span className="text-xl font-bold text-blue-600">
+            <span className="text-xl font-bold text-pink-600">
               ${(getTotal() + 2.5).toFixed(2)}
             </span>
           </div>

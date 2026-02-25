@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Button from '../../components/common/Button';
 import { Plus, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getAssetUrl } from '../../utils/helpers';
 
 const VendorMenu = () => {
   const { id } = useParams();
@@ -53,7 +54,7 @@ const VendorMenu = () => {
       name: item.name,
       price: item.discount_price || item.price,
       quantity,
-      vendorId: id,
+      vendorId: Number(id),
       vendorName: vendor?.business_name || 'Vendor',
       imageUrl: item.image_url,
     });
@@ -95,7 +96,7 @@ const VendorMenu = () => {
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
               selectedCategory === category
-                ? 'bg-blue-600 text-white'
+                ? 'bg-pink-600 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
           >
@@ -109,7 +110,7 @@ const VendorMenu = () => {
           <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
             {item.image_url && (
               <img
-                src={item.image_url}
+                src={getAssetUrl(item.image_url)}
                 alt={item.name}
                 className="w-full h-48 object-cover"
               />
@@ -135,7 +136,7 @@ const VendorMenu = () => {
                 <div>
                   {item.discount_price ? (
                     <div>
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-lg font-bold text-pink-600">
                         ${item.discount_price.toFixed(2)}
                       </span>
                       <span className="text-sm text-gray-500 line-through ml-2">

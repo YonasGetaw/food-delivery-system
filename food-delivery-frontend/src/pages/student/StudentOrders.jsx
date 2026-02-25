@@ -95,13 +95,13 @@ const StudentOrders = () => {
               <div className="flex justify-between items-center pt-4 border-t">
                 <div>
                   <p className="text-sm text-gray-600">Total Amount</p>
-                  <p className="text-xl font-bold text-blue-600">
+                  <p className="text-xl font-bold text-pink-600">
                     ${order.total_amount?.toFixed(2) || '0.00'}
                   </p>
                 </div>
                 <Link
                   to={`/student/orders/${order.id}/track`}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Track Order

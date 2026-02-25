@@ -58,7 +58,7 @@ const OrderTracking = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link to="/student/orders" className="text-blue-600 hover:text-blue-700">
+        <Link to="/student/orders" className="text-pink-600 hover:text-pink-700">
           ← Back to Orders
         </Link>
       </div>
@@ -76,7 +76,7 @@ const OrderTracking = () => {
                 ? 'bg-green-100 text-green-800'
                 : tracking.status === 'cancelled' || tracking.status === 'rejected'
                 ? 'bg-red-100 text-red-800'
-                : 'bg-blue-100 text-blue-800'
+                : 'bg-pink-100 text-pink-800'
             }`}
           >
             {ORDER_STATUS_LABELS[tracking.status] || tracking.status}

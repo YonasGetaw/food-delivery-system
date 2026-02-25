@@ -344,7 +344,7 @@ const StudentProfile = () => {
                 <div className="flex items-center space-x-2 mb-2">
                   <p className="font-medium">{address.address_line1}</p>
                   {address.is_default && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                    <span className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">
                       Default
                     </span>
                   )}
@@ -361,7 +361,7 @@ const StudentProfile = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => startEditAddress(address)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                  className="p-2 text-pink-600 hover:bg-pink-50 rounded"
                 >
                   <Edit className="w-4 h-4" />
                 </button>

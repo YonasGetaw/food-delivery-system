@@ -431,7 +431,7 @@ const Checkout = () => {
             </div>
             <div className="flex justify-between text-lg font-bold pt-2 border-t">
               <span>Total</span>
-              <span className="text-blue-600">ETB {(getTotal() + 2.5).toFixed(2)}</span>
+              <span className="text-pink-600">ETB {(getTotal() + 2.5).toFixed(2)}</span>
             </div>
           </div>
         </div>
