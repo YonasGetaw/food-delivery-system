@@ -176,8 +176,7 @@ const VendorMenu = () => {
             setShowForm(!showForm);
           }}
         >
-          <Plus className="w-4 h-4 mr-2" />
-          {showForm ? 'Cancel' : 'Add Item'}
+          {showForm ? 'Cancel' : '+ Add Item'}
         </Button>
       </div>
 

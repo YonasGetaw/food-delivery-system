@@ -6,3 +6,4 @@ export const notificationsAPI = {
   markRead: (id) => axiosInstance.post(`/notifications/${id}/read`),
   markAllRead: () => axiosInstance.post('/notifications/read-all'),
 };
+

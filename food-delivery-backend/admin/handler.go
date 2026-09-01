@@ -83,10 +83,17 @@ func (h *Handler) CreateRider(c *gin.Context) {
 // @Router /admin/users [get]
 func (h *Handler) GetUsers(c *gin.Context) {
 	role := c.Query("role")
+	isActiveStr := c.Query("is_active")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	users, total, err := h.service.GetUsers(role, page, limit)
+	var isActivePtr *bool
+	if isActiveStr != "" {
+		val := isActiveStr == "true"
+		isActivePtr = &val
+	}
+
+	users, total, err := h.service.GetUsers(role, isActivePtr, page, limit)
 	if err != nil {
 		pkg.SendError(c, http.StatusInternalServerError, "Failed to get users", err.Error())
 		return
@@ -152,10 +159,17 @@ func (h *Handler) ToggleUserStatus(c *gin.Context) {
 // @Success 200 {object} pkg.PaginatedResponse
 // @Router /admin/vendors [get]
 func (h *Handler) GetVendors(c *gin.Context) {
+	isOpenStr := c.Query("is_open")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	vendors, total, err := h.service.GetVendors(page, limit)
+	var isOpenPtr *bool
+	if isOpenStr != "" {
+		val := isOpenStr == "true"
+		isOpenPtr = &val
+	}
+
+	vendors, total, err := h.service.GetVendors(isOpenPtr, page, limit)
 	if err != nil {
 		pkg.SendError(c, http.StatusInternalServerError, "Failed to get vendors", err.Error())
 		return
@@ -289,6 +303,26 @@ func (h *Handler) GetRevenueReport(c *gin.Context) {
 	}
 
 	pkg.SendSuccess(c, http.StatusOK, "Revenue report generated", report)
+}
+
+// GetStatusSummaryReport returns status counts (users/vendors/riders/orders) for a period
+// @Summary Get status summary report
+// @Tags Admin
+// @Security BearerAuth
+// @Produce json
+// @Param period query string false "Period: daily|weekly|monthly|yearly (default: monthly)"
+// @Success 200 {object} pkg.Response{data=StatusSummaryReport}
+// @Router /admin/reports/status-summary [get]
+func (h *Handler) GetStatusSummaryReport(c *gin.Context) {
+	period := c.DefaultQuery("period", "monthly")
+
+	report, err := h.service.GetStatusSummaryReport(period)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Failed to generate status summary", err.Error())
+		return
+	}
+
+	pkg.SendSuccess(c, http.StatusOK, "Status summary generated", report)
 }
 
 // GetVendorPerformance returns vendor performance report

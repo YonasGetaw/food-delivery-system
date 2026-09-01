@@ -15,6 +15,7 @@ const VendorOrders = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [modalMode, setModalMode] = useState('details');
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -42,6 +43,7 @@ const VendorOrders = () => {
       toast.success('Order accepted');
       loadOrders();
       setSelectedOrder(null);
+      setModalMode('details');
     } catch (error) {
       toast.error(error.error || 'Failed to accept order');
     } finally {
@@ -56,6 +58,8 @@ const VendorOrders = () => {
       await vendorsAPI.updateOrderStatus(orderId, 'preparing');
       toast.success('Order status updated to preparing');
       loadOrders();
+      setSelectedOrder(null);
+      setModalMode('details');
     } catch (error) {
       toast.error(error.error || 'Failed to update order status');
     } finally {
@@ -74,6 +78,7 @@ const VendorOrders = () => {
       toast.success('Order rejected');
       loadOrders();
       setSelectedOrder(null);
+      setModalMode('details');
       setRejectReason('');
     } catch (error) {
       toast.error(error.error || 'Failed to reject order');
@@ -89,11 +94,24 @@ const VendorOrders = () => {
       toast.success('Order marked as ready');
       loadOrders();
       setSelectedOrder(null);
+      setModalMode('details');
     } catch (error) {
       toast.error(error.error || 'Failed to update');
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const openDetails = (order) => {
+    setRejectReason('');
+    setModalMode('details');
+    setSelectedOrder(order);
+  };
+
+  const closeDetails = () => {
+    setSelectedOrder(null);
+    setRejectReason('');
+    setModalMode('details');
   };
 
   const getStatusColor = (status) => {
@@ -132,128 +150,221 @@ const VendorOrders = () => {
         </select>
       </div>
 
-      <div className="space-y-4">
-        {orders.map((order) => (
-          <div key={order.id} className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-100 dark:border-gray-800">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  Order #{order.order_number}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-                </p>
-              </div>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                {ORDER_STATUS_LABELS[order.status] || order.status}
-              </span>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-gray-700 dark:text-gray-200">
-                <strong>Delivery:</strong> {order.delivery_address}
-              </p>
-              <p className="text-gray-700 dark:text-gray-200 mt-1">
-                <strong>Phone:</strong> {order.customer_phone || order.student?.user?.phone || 'N/A'}
-              </p>
-              {order.special_instructions && (
-                <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
-                  <strong>Notes:</strong> {order.special_instructions}
-                </p>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">Items:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {order.order_items?.map((item) => (
-                  <li key={item.id} className="text-gray-800 dark:text-gray-200">
-                    {item.menu_item?.name || 'Item'} x {item.quantity} - ETB
-                    {(item.unit_price * item.quantity).toFixed(2)}
-                  </li>
+      {orders.length > 0 ? (
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+              <thead className="bg-blue-50 dark:bg-gray-800">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Order #</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Total</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-blue-700 dark:text-gray-200 uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                      {order.created_at ? format(new Date(order.created_at), 'MMM dd, yyyy HH:mm') : '—'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
+                        {ORDER_STATUS_LABELS[order.status] || order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-pink-600 dark:text-pink-300">
+                      ETB {order.total_amount?.toFixed(2) || '0.00'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <Button size="sm" variant="secondary" onClick={() => openDetails(order)}>
+                        Show
+                      </Button>
+                    </td>
+                  </tr>
                 ))}
-              </ul>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
+
+      {selectedOrder ? (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  Order #{selectedOrder.order_number}
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(selectedOrder.status)}`}>
+                    {ORDER_STATUS_LABELS[selectedOrder.status] || selectedOrder.status}
+                  </span>
+                  {selectedOrder.created_at ? (
+                    <span className="text-xs text-gray-600 dark:text-gray-300">
+                      {format(new Date(selectedOrder.created_at), 'MMM dd, yyyy HH:mm')}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeDetails}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
-              <p className="text-xl font-bold text-pink-600 dark:text-pink-300">
-                Total: ETB {order.total_amount?.toFixed(2) || '0.00'}
-              </p>
-              <div className="flex space-x-2">
-                {order.status === 'pending' && (
-                  <>
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleAccept(order.id)}
-                      loading={actionLoading}
-                    >
-                      <Check className="w-4 h-4 mr-1" />
-                      Accept
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => setSelectedOrder({ ...order, action: 'reject' })}
-                      disabled={actionLoading}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-                {order.status === 'confirmed' && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleStartPreparing(order.id)}
-                    loading={actionLoading}
-                  >
-                    Start Preparing
-                  </Button>
-                )}
-                {order.status === 'preparing' && (
-                  <Button
-                    variant="success"
-                    size="sm"
-                    onClick={() => handleMarkReady(order.id)}
-                    loading={actionLoading}
-                  >
-                    Mark Ready
-                  </Button>
+            <div className="px-6 py-5 space-y-5">
+              <div className="space-y-1">
+                <div className="text-sm text-gray-700 dark:text-gray-200">
+                  <span className="font-semibold">Delivery:</span> {selectedOrder.delivery_address || '—'}
+                </div>
+                <div className="text-sm text-gray-700 dark:text-gray-200">
+                  <span className="font-semibold">Phone:</span> {selectedOrder.customer_phone || selectedOrder.student?.user?.phone || 'N/A'}
+                </div>
+                {selectedOrder.special_instructions ? (
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="font-semibold">Notes:</span> {selectedOrder.special_instructions}
+                  </div>
+                ) : null}
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Items</div>
+                {Array.isArray(selectedOrder.order_items) && selectedOrder.order_items.length > 0 ? (
+                  <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase">Item</th>
+                          <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase">Qty</th>
+                          <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                        {selectedOrder.order_items.map((item) => (
+                          <tr key={item.id}>
+                            <td className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">
+                              {item.menu_item?.name || 'Item'}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 text-right">{item.quantity}</td>
+                            <td className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
+                              ETB {item.unit_price && item.quantity ? (item.unit_price * item.quantity).toFixed(2) : '0.00'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600 dark:text-gray-300">No items</div>
                 )}
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {selectedOrder?.action === 'reject' && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full border border-gray-100 dark:border-gray-800">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Reject Order</h3>
-            <Input
-              label="Reason (required)"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Enter rejection reason"
-            />
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="secondary" onClick={() => setSelectedOrder(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={() => handleReject(selectedOrder.id)}
-                loading={actionLoading}
-                disabled={!rejectReason.trim()}
-              >
-                Reject Order
-              </Button>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div className="text-sm text-gray-700 dark:text-gray-200">
+                  <span className="font-semibold">Total:</span>{' '}
+                  <span className="font-bold text-pink-600 dark:text-pink-300">ETB {selectedOrder.total_amount?.toFixed(2) || '0.00'}</span>
+                </div>
+
+                {modalMode === 'details' ? (
+                  <div className="flex items-center gap-2">
+                    {selectedOrder.status === 'pending' ? (
+                      <>
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleAccept(selectedOrder.id)}
+                          loading={actionLoading}
+                        >
+                          <Check className="w-4 h-4 mr-1" />
+                          Accept
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setModalMode('reject')}
+                          disabled={actionLoading}
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Reject
+                        </Button>
+                      </>
+                    ) : null}
+
+                    {selectedOrder.status === 'confirmed' ? (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleStartPreparing(selectedOrder.id)}
+                        loading={actionLoading}
+                      >
+                        Start Preparing
+                      </Button>
+                    ) : null}
+
+                    {selectedOrder.status === 'preparing' ? (
+                      <Button
+                        variant="success"
+                        size="sm"
+                        onClick={() => handleMarkReady(selectedOrder.id)}
+                        loading={actionLoading}
+                      >
+                        Mark Ready
+                      </Button>
+                    ) : null}
+
+                    <Button variant="secondary" size="sm" onClick={closeDetails} disabled={actionLoading}>
+                      Close
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <Input
+                      label="Rejection reason"
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder="Enter rejection reason"
+                      required
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setRejectReason('');
+                          setModalMode('details');
+                        }}
+                        disabled={actionLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleReject(selectedOrder.id)}
+                        loading={actionLoading}
+                        disabled={!rejectReason.trim()}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {orders.length === 0 && (
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-12 text-center border border-gray-100 dark:border-gray-800">

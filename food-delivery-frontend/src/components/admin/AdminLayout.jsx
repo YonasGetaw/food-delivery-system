@@ -146,8 +146,8 @@ const AdminLayout = ({ children }) => {
         <div className="px-6 py-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-5">
             <Link to="/admin" className="flex items-center gap-3 select-none">
-              <Truck className="w-9 h-9 text-[#db2777]" />
-              <span className="text-2xl font-bold text-[#db2777]">Food Delivery</span>
+              <Truck className="w-9 h-9 text-pink-600 dark:text-pink-300" />
+              <span className="text-2xl font-bold text-pink-600 dark:text-pink-300">Food Delivery</span>
             </Link>
             <button
               type="button"
@@ -173,10 +173,10 @@ const AdminLayout = ({ children }) => {
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-label="Notifications"
               >
-                <Bell className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
+                <Bell className="w-5 h-5 text-pink-600 dark:text-pink-300" />
 
                 {effectiveUnreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#db2777] text-white text-[11px] font-semibold leading-[18px] text-center">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-pink-600 dark:bg-pink-500/80 text-white text-[11px] font-semibold leading-[18px] text-center">
                     {formattedUnreadCount}
                   </span>
                 ) : null}
@@ -218,7 +218,7 @@ const AdminLayout = ({ children }) => {
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <div className="flex items-start gap-2">
-                                {!n.is_read ? <span className="mt-1.5 w-2 h-2 rounded-full bg-[#db2777] shrink-0" /> : null}
+                                {!n.is_read ? <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-600 dark:bg-pink-500/80 shrink-0" /> : null}
                                 <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words">{n.title}</div>
                               </div>
                             </div>
@@ -244,9 +244,9 @@ const AdminLayout = ({ children }) => {
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
+                <Sun className="w-5 h-5 text-pink-600 dark:text-pink-300" />
               ) : (
-                <Moon className="w-5 h-5 text-[#db2777] dark:text-pink-400" />
+                <Moon className="w-5 h-5 text-pink-600 dark:text-pink-300" />
               )}
             </button>
 
@@ -257,24 +257,24 @@ const AdminLayout = ({ children }) => {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-label="Profile menu"
               >
-                <div className="w-8 h-8 rounded-full bg-[#db2777] text-white flex items-center justify-center font-semibold overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-pink-600 dark:bg-pink-500/80 text-white flex items-center justify-center font-semibold overflow-hidden">
                   {avatarSrc ? (
                     <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <span>{initial}</span>
                   )}
                 </div>
-                <span className="text-sm font-medium text-[#db2777] dark:text-pink-400">{displayName || user?.email}</span>
+                <span className="text-sm font-medium text-pink-600 dark:text-pink-300">{displayName || user?.email}</span>
                 <span
                   aria-hidden="true"
-                  className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#db2777]"
+                  className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-l-transparent border-r-transparent border-t-pink-600 dark:border-t-pink-300"
                 />
               </button>
 
               {profileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-800 shadow-lg overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-                    <div className="text-sm font-semibold text-[#db2777] dark:text-pink-400 text-center truncate">
+                    <div className="text-sm font-semibold text-pink-600 dark:text-pink-300 text-center truncate">
                       {displayName || user?.email || 'Admin'}
                     </div>
                   </div>
@@ -284,7 +284,7 @@ const AdminLayout = ({ children }) => {
                     onClick={() => setProfileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <Settings className="w-4 h-4 text-[#db2777]" />
+                    <Settings className="w-4 h-4 text-pink-600 dark:text-pink-300" />
                     Account Settings
                   </Link>
 				  <button
@@ -294,8 +294,8 @@ const AdminLayout = ({ children }) => {
 					  await handleLogout();
 					}}
 					className="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-				  >
-          <LogOut className="w-4 h-4 text-[#db2777]" />
+          >
+        <LogOut className="w-4 h-4 text-pink-600 dark:text-pink-300" />
           Sign Out
 				  </button>
                 </div>
@@ -315,7 +315,7 @@ const AdminLayout = ({ children }) => {
                 key={item.to}
                 to={item.to}
                 title={sidebarCollapsed ? item.label : undefined}
-                className={`flex items-center rounded-lg text-[#db2777] dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                className={`flex items-center rounded-lg text-pink-600 dark:text-pink-300 hover:bg-gray-100 dark:hover:bg-gray-800 ${
                   sidebarCollapsed ? 'mx-2 justify-center px-3 py-3.5' : 'mx-3 px-5 py-3.5'
                 }`}
               >

@@ -329,9 +329,13 @@ func (s *Service) GetOrder(userID uint, userRole string, orderID uint) (*databas
 	return order, nil
 }
 
-func (s *Service) GetStudentOrders(studentID uint, page, limit int) ([]database.Order, int64, error) {
+func (s *Service) GetStudentOrders(userID uint, page, limit int) ([]database.Order, int64, error) {
+	student, err := s.repo.GetStudentByUserID(userID)
+	if err != nil {
+		return nil, 0, errors.New("student profile not found")
+	}
 	offset := (page - 1) * limit
-	return s.repo.GetStudentOrders(studentID, offset, limit)
+	return s.repo.GetStudentOrders(student.ID, offset, limit)
 }
 
 func (s *Service) GetVendorOrders(vendorID uint, status string, page, limit int) ([]database.Order, int64, error) {

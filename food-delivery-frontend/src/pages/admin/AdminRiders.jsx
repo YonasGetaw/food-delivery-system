@@ -12,6 +12,7 @@ const AdminRiders = () => {
   const [riders, setRiders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [totalPages, setTotalPages] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
   const [showForm, setShowForm] = useState(false);
@@ -27,11 +28,15 @@ const AdminRiders = () => {
   useEffect(() => {
     setLoading(true);
     loadRiders();
-  }, [page, pageSize]);
+  }, [page, pageSize, availabilityFilter]);
 
   const loadRiders = async () => {
     try {
-      const response = await adminAPI.getRiders(page, pageSize);
+      const response = await adminAPI.getRiders({
+        page,
+        limit: pageSize,
+        available: availabilityFilter || undefined,
+      });
       setRiders(response.data || response || []);
       setTotalPages(response.pagination?.total_pages || 1);
       setTotalRows(
@@ -78,31 +83,49 @@ const AdminRiders = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+        <Link to="/admin" className="text-sm font-semibold text-pink-600 dark:text-pink-300 hover:underline">
           Home
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">Per page</span>
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                setPage(1);
-                setPageSize(Number(e.target.value));
-              }}
-              className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
-              aria-label="Per page"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-
+        <div className="flex flex-col items-end gap-2">
           <Button variant="primary" onClick={() => setShowForm(!showForm)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Rider
+            + Create Rider
           </Button>
+
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">Availability</span>
+              <select
+                value={availabilityFilter}
+                onChange={(e) => {
+                  setPage(1);
+                  setAvailabilityFilter(e.target.value);
+                }}
+                className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+                aria-label="Rider availability filter"
+              >
+                <option value="">All</option>
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">Per page</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPage(1);
+                  setPageSize(Number(e.target.value));
+                }}
+                className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+                aria-label="Per page"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -196,7 +219,7 @@ const AdminRiders = () => {
               onClick={() => setPage(p)}
               className={
                 p === page
-                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-[#db2777] text-white'
+                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-pink-600 dark:bg-pink-500/80 text-white'
                   : 'min-w-10 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border-l border-gray-200'
               }
               aria-current={p === page ? 'page' : undefined}

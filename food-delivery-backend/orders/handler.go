@@ -1,23 +1,24 @@
 package orders
 
 import (
-    "net/http"
-    "strconv"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "food-delivery-backend/pkg"
+	"food-delivery-backend/pkg"
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type Handler struct {
-    service *Service
-    logger  *zap.Logger
+	service *Service
+	logger  *zap.Logger
 }
 
 func NewHandler(service *Service, logger *zap.Logger) *Handler {
-    return &Handler{
-        service: service,
-        logger:  logger,
-    }
+	return &Handler{
+		service: service,
+		logger:  logger,
+	}
 }
 
 // CreateOrder creates a new order
@@ -31,28 +32,28 @@ func NewHandler(service *Service, logger *zap.Logger) *Handler {
 // @Failure 400 {object} pkg.Response
 // @Router /orders [post]
 func (h *Handler) CreateOrder(c *gin.Context) {
-    studentID := c.GetUint("user_id")
+	studentID := c.GetUint("user_id")
 
-    var req CreateOrderRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
-        return
-    }
+	var req CreateOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
+		return
+	}
 
-    // Validate request
-    if len(req.Items) == 0 {
-        pkg.SendError(c, http.StatusBadRequest, "Order must contain at least one item", nil)
-        return
-    }
+	// Validate request
+	if len(req.Items) == 0 {
+		pkg.SendError(c, http.StatusBadRequest, "Order must contain at least one item", nil)
+		return
+	}
 
-    order, err := h.service.CreateOrder(studentID, &req)
-    if err != nil {
-        h.logger.Error("Failed to create order", zap.Error(err))
-        pkg.SendError(c, http.StatusBadRequest, "Failed to create order", err.Error())
-        return
-    }
+	order, err := h.service.CreateOrder(studentID, &req)
+	if err != nil {
+		h.logger.Error("Failed to create order", zap.Error(err))
+		pkg.SendError(c, http.StatusBadRequest, "Failed to create order", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusCreated, "Order created successfully", order)
+	pkg.SendSuccess(c, http.StatusCreated, "Order created successfully", order)
 }
 
 // GetOrder returns order details
@@ -65,21 +66,21 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 // @Failure 404 {object} pkg.Response
 // @Router /orders/{id} [get]
 func (h *Handler) GetOrder(c *gin.Context) {
-    userID := c.GetUint("user_id")
-    userRole := c.GetString("user_role")
-    orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-    if err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
-        return
-    }
+	userID := c.GetUint("user_id")
+	userRole := c.GetString("user_role")
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
+		return
+	}
 
-    order, err := h.service.GetOrder(userID, userRole, uint(orderID))
-    if err != nil {
-        pkg.SendError(c, http.StatusNotFound, "Order not found", err.Error())
-        return
-    }
+	order, err := h.service.GetOrder(userID, userRole, uint(orderID))
+	if err != nil {
+		pkg.SendError(c, http.StatusNotFound, "Order not found", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Order retrieved successfully", order)
+	pkg.SendSuccess(c, http.StatusOK, "Order retrieved successfully", order)
 }
 
 // GetStudentOrders returns student's orders
@@ -92,17 +93,17 @@ func (h *Handler) GetOrder(c *gin.Context) {
 // @Success 200 {object} pkg.PaginatedResponse
 // @Router /orders/student [get]
 func (h *Handler) GetStudentOrders(c *gin.Context) {
-    studentID := c.GetUint("user_id")
-    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-    limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	userID := c.GetUint("user_id")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-    orders, total, err := h.service.GetStudentOrders(studentID, page, limit)
-    if err != nil {
-        pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
-        return
-    }
+	orders, total, err := h.service.GetStudentOrders(userID, page, limit)
+	if err != nil {
+		pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
+		return
+	}
 
-    pkg.SendPaginated(c, http.StatusOK, "Orders retrieved successfully", orders, page, limit, total)
+	pkg.SendPaginated(c, http.StatusOK, "Orders retrieved successfully", orders, page, limit, total)
 }
 
 // GetVendorOrders returns vendor's orders
@@ -116,18 +117,18 @@ func (h *Handler) GetStudentOrders(c *gin.Context) {
 // @Success 200 {object} pkg.PaginatedResponse
 // @Router /orders/vendor [get]
 func (h *Handler) GetVendorOrders(c *gin.Context) {
-    vendorID := c.GetUint("user_id")
-    status := c.Query("status")
-    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-    limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	vendorID := c.GetUint("user_id")
+	status := c.Query("status")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-    orders, total, err := h.service.GetVendorOrders(vendorID, status, page, limit)
-    if err != nil {
-        pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
-        return
-    }
+	orders, total, err := h.service.GetVendorOrders(vendorID, status, page, limit)
+	if err != nil {
+		pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
+		return
+	}
 
-    pkg.SendPaginated(c, http.StatusOK, "Orders retrieved successfully", orders, page, limit, total)
+	pkg.SendPaginated(c, http.StatusOK, "Orders retrieved successfully", orders, page, limit, total)
 }
 
 // GetRiderOrders returns rider's orders
@@ -139,16 +140,16 @@ func (h *Handler) GetVendorOrders(c *gin.Context) {
 // @Success 200 {object} pkg.Response{data=[]database.Order}
 // @Router /orders/rider [get]
 func (h *Handler) GetRiderOrders(c *gin.Context) {
-    riderID := c.GetUint("user_id")
-    status := c.Query("status")
+	riderID := c.GetUint("user_id")
+	status := c.Query("status")
 
-    orders, err := h.service.GetRiderOrders(riderID, status)
-    if err != nil {
-        pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
-        return
-    }
+	orders, err := h.service.GetRiderOrders(riderID, status)
+	if err != nil {
+		pkg.SendError(c, http.StatusInternalServerError, "Failed to get orders", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Orders retrieved successfully", orders)
+	pkg.SendSuccess(c, http.StatusOK, "Orders retrieved successfully", orders)
 }
 
 // UpdateOrderStatus updates order status
@@ -163,26 +164,26 @@ func (h *Handler) GetRiderOrders(c *gin.Context) {
 // @Failure 400 {object} pkg.Response
 // @Router /orders/{id}/status [put]
 func (h *Handler) UpdateOrderStatus(c *gin.Context) {
-    userID := c.GetUint("user_id")
-    userRole := c.GetString("user_role")
-    orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-    if err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
-        return
-    }
+	userID := c.GetUint("user_id")
+	userRole := c.GetString("user_role")
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
+		return
+	}
 
-    var req UpdateOrderStatusRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
-        return
-    }
+	var req UpdateOrderStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
+		return
+	}
 
-    if err := h.service.UpdateOrderStatus(userID, userRole, uint(orderID), req.Status, req.Reason); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Failed to update order status", err.Error())
-        return
-    }
+	if err := h.service.UpdateOrderStatus(userID, userRole, uint(orderID), req.Status, req.Reason); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Failed to update order status", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Order status updated successfully", nil)
+	pkg.SendSuccess(c, http.StatusOK, "Order status updated successfully", nil)
 }
 
 // CancelOrder cancels an order
@@ -196,26 +197,26 @@ func (h *Handler) UpdateOrderStatus(c *gin.Context) {
 // @Success 200 {object} pkg.Response
 // @Router /orders/{id}/cancel [post]
 func (h *Handler) CancelOrder(c *gin.Context) {
-    userID := c.GetUint("user_id")
-    userRole := c.GetString("user_role")
-    orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-    if err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
-        return
-    }
+	userID := c.GetUint("user_id")
+	userRole := c.GetString("user_role")
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
+		return
+	}
 
-    var req CancelOrderRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
-        return
-    }
+	var req CancelOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
+		return
+	}
 
-    if err := h.service.CancelOrder(userID, userRole, uint(orderID), req.Reason); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Failed to cancel order", err.Error())
-        return
-    }
+	if err := h.service.CancelOrder(userID, userRole, uint(orderID), req.Reason); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Failed to cancel order", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Order cancelled successfully", nil)
+	pkg.SendSuccess(c, http.StatusOK, "Order cancelled successfully", nil)
 }
 
 // TrackOrder returns real-time order tracking info
@@ -227,20 +228,20 @@ func (h *Handler) CancelOrder(c *gin.Context) {
 // @Success 200 {object} pkg.Response{data=TrackingInfo}
 // @Router /orders/{id}/track [get]
 func (h *Handler) TrackOrder(c *gin.Context) {
-    userID := c.GetUint("user_id")
-    orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-    if err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
-        return
-    }
+	userID := c.GetUint("user_id")
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
+		return
+	}
 
-    tracking, err := h.service.TrackOrder(userID, uint(orderID))
-    if err != nil {
-        pkg.SendError(c, http.StatusNotFound, "Order not found", err.Error())
-        return
-    }
+	tracking, err := h.service.TrackOrder(userID, uint(orderID))
+	if err != nil {
+		pkg.SendError(c, http.StatusNotFound, "Order not found", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Tracking info retrieved", tracking)
+	pkg.SendSuccess(c, http.StatusOK, "Tracking info retrieved", tracking)
 }
 
 // RateOrder rates a delivered order
@@ -254,23 +255,23 @@ func (h *Handler) TrackOrder(c *gin.Context) {
 // @Success 200 {object} pkg.Response
 // @Router /orders/{id}/rate [post]
 func (h *Handler) RateOrder(c *gin.Context) {
-    studentID := c.GetUint("user_id")
-    orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
-    if err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
-        return
-    }
+	studentID := c.GetUint("user_id")
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid order ID", nil)
+		return
+	}
 
-    var req RateOrderRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
-        return
-    }
+	var req RateOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Invalid request", err.Error())
+		return
+	}
 
-    if err := h.service.RateOrder(studentID, uint(orderID), &req); err != nil {
-        pkg.SendError(c, http.StatusBadRequest, "Failed to rate order", err.Error())
-        return
-    }
+	if err := h.service.RateOrder(studentID, uint(orderID), &req); err != nil {
+		pkg.SendError(c, http.StatusBadRequest, "Failed to rate order", err.Error())
+		return
+	}
 
-    pkg.SendSuccess(c, http.StatusOK, "Order rated successfully", nil)
+	pkg.SendSuccess(c, http.StatusOK, "Order rated successfully", nil)
 }

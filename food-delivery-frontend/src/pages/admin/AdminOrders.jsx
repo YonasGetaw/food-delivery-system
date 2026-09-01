@@ -13,6 +13,7 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [riders, setRiders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedRiderId, setSelectedRiderId] = useState('');
@@ -22,14 +23,21 @@ const AdminOrders = () => {
   const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
+    loadRiders();
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     loadOrders();
-    loadRiders();
-  }, [page, pageSize]);
+  }, [page, pageSize, statusFilter]);
 
   const loadOrders = async () => {
     try {
-      const response = await adminAPI.getOrders({ page, limit: pageSize });
+      const response = await adminAPI.getOrders({
+        page,
+        limit: pageSize,
+        ...(statusFilter ? { status: statusFilter } : {}),
+      });
       setOrders(response.data || response || []);
       setTotalPages(response.pagination?.total_pages || 1);
       setTotalRows(
@@ -59,7 +67,7 @@ const AdminOrders = () => {
 
   const loadRiders = async () => {
     try {
-      const response = await adminAPI.getRiders(1, 100);
+      const response = await adminAPI.getRiders({ page: 1, limit: 100 });
       setRiders(response.data || response || []);
     } catch (error) {
       console.error('Failed to load riders:', error);
@@ -107,28 +115,61 @@ const AdminOrders = () => {
     new Set([page - 1, page, page + 1].filter((p) => p >= 1 && p <= totalPages))
   );
 
+  const statusOptions = [
+    'pending',
+    'confirmed',
+    'preparing',
+    'ready',
+    'picked_up',
+    'delivered',
+    'cancelled',
+    'rejected',
+  ];
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <Link to="/admin" className="text-sm font-semibold text-[#db2777] hover:underline">
+        <Link to="/admin" className="text-sm font-semibold text-pink-600 dark:text-pink-300 hover:underline">
           Home
         </Link>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">Per page</span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPage(1);
-              setPageSize(Number(e.target.value));
-            }}
-            className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
-            aria-label="Per page"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Status</span>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setPage(1);
+                setStatusFilter(e.target.value);
+              }}
+              className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+              aria-label="Order status filter"
+            >
+              <option value="">All</option>
+              {statusOptions.map((st) => (
+                <option key={st} value={st}>
+                  {ORDER_STATUS_LABELS?.[st] || st}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Per page</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPage(1);
+                setPageSize(Number(e.target.value));
+              }}
+              className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800"
+              aria-label="Per page"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -192,7 +233,7 @@ const AdminOrders = () => {
               onClick={() => setPage(p)}
               className={
                 p === page
-                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-[#db2777] text-white'
+                  ? 'min-w-10 px-4 py-2 text-sm font-semibold bg-pink-600 dark:bg-pink-500/80 text-white'
                   : 'min-w-10 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border-l border-gray-200'
               }
               aria-current={p === page ? 'page' : undefined}
